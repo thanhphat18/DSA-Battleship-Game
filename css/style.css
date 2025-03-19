@@ -1,0 +1,59 @@
+/* General styles */
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin-top: 50px;
+}
+
+h1, h2, h3 {
+  font-size: 24px;
+}
+
+#game-info {
+  margin-bottom: 20px;
+}
+
+#start-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#start-btn:hover {
+  background-color: #45a049;
+}
+
+/* Board styling */
+.board {
+  display: grid;
+  grid-template-columns: repeat(10, 30px);  /* 10 equal columns */
+  grid-template-rows: repeat(10, 30px);  /* 10 equal rows */
+  gap: 2px;
+  border: 1px solid #000;
+  background-color: lightblue;
+  margin: 20px auto;
+  width: 320px;
+  height: 320px;
+}
+
+.board h3 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* Cell styling */
+.cell {
+  width: 30px;
+  height: 30px;
+  background-color: lightblue;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.cell.occupied {
+  background-color: #333;  /* Dark gray for occupied cells */
+}
+
