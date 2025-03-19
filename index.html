@@ -4,18 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battleship Game</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/shipstyle.css"> <!-- Link to your CSS -->
 </head>
 <body>
-  <h1>Battleship Game</h1>
-  <div class="game-container">
-    <div class="board" id="player-board"></div>
-    <div class="board" id="computer-board"></div>
-  </div>
-    <script src="ship.js"></script>
-    <script src="board.js"></script>
-    <script src="game.js"></script>
-    <script src="script.js"></script>
+  <header>
+    <h1>Battleship Game</h1>
+  </header>
 
+  <main>
+    <section id="game-info">
+      <h2>Game Info</h2>
+      <p id="game-status">Place your ships and get ready to battle!</p>
+    </section>
+
+    <section id="ship-list">
+      <h2>Ship List</h2>
+      <div id="ships">
+        <!-- Ships will be displayed here for dragging -->
+      </div>
+    </section>
+
+    <section id="boards">
+      <h3>Your Board</h3>
+      <div id="player-board" class="board">
+        <!-- Player's board grid will be created here -->
+      </div>
+      <h3>Bot's Board</h3>
+      <div id="bot-board" class="board">
+        <!-- Bot's board grid will be created here (visible but not interactive) -->
+      </div>
+    </section>
+
+    <button id="start-btn">Start Game</button>
+  </main>
+
+  <script src="js/models/board.js"></script>  <!-- Link to your Board-related logic -->
+  <script src="js/models/ship.js"></script>  <!-- Ship-related logic -->
+  <script src="js/models/shift-list.js"></script>
+  <script src="js/game/game.js"></script>  <!-- Game logic -->
 </body>
 </html>
