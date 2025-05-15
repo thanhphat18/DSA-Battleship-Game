@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Store all ships in an array
   const playerShips = [ship1, ship2, ship3, ship4, ship5];
+  const botShips = [ship1, ship2, ship3, ship4, ship5];
 
   // Create the ship list using the ShipList class
   const shipList = new ShipList('ships', playerShips);  // Pass the container ID ('ships') and the ship array
@@ -20,6 +21,66 @@ document.addEventListener("DOMContentLoaded", () => {
   function startGame() {
     console.log("Game Started! Place your ships and make your moves.");
     // Logic to start the game (e.g., first turn, etc.)
+  }
+
+  //
+  function canPlaceShip(currentShips, row, col, length, horizontal, gridSize) {
+    const tempPositions = [];
+    for (let i = 0; i < length; i++){
+      let r = row;
+      let c = col;
+      if (horizontal){
+        c += i;
+      } else {
+        r += i;
+      }
+      if (r >= gridSize || c >= gridSize) return false;
+      tempPositions.push({row: r, col: c})
+    }
+
+    //Check for overlapping
+    for (const ship of currentShips){
+      for (const coord of ship.coordinates){
+        for (const tempPos of tempPositions) {
+          if (pos.row === tempPos.row && pos.col === tempPos.col){
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  // 
+  function placeBotShips(){
+    leftShips = [];
+    botShips.forEach(ship => ship.isPlaced = false);
+
+    for (const ship of botShips){
+      let placed = false;
+      while (!placed){
+        const horizontal = Math.random() < 0.5;
+        const row = Math.floor(Math.random() * 10);
+        const col = Math.floor(Math.random() * 10);
+
+        if (canPlaceShip(leftShips, row, col, botShips.length, horizontal, 10)){
+          const newShip = new Ship(botShips.name, botShips.size)
+          for (let i = 0; i< botShips.length; i++){
+            let r = row;
+            let c = col;
+            if (horizontal){
+              c += i
+            } else {
+              r += i
+            }
+            newShip.coordinates.push({row: r, col:c})
+          }
+          leftShips.push(newShip);
+          ship.isPlaced = true;
+          placed = true;
+        }
+      }
+    }
   }
 
   // Add event listener to the start game button

@@ -9,7 +9,7 @@
     flex-direction: column;
     gap: 10px;
   }
-  
+
   /* Styling for each ship item in the list */
   .ship-item {
     padding: 10px;
