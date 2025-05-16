@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const ship of currentShips){
       for (const coord of ship.coordinates){
         for (const tempPos of tempPositions) {
-          if (pos.row === tempPos.row && pos.col === tempPos.col){
+          if (coord.row === tempPos.row && coord.col === tempPos.col){
             return false;
           }
         }
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  // 
+  //
   function placeBotShips(){
     leftShips = [];
     botShips.forEach(ship => ship.isPlaced = false);
@@ -59,13 +59,14 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const ship of botShips){
       let placed = false;
       while (!placed){
-        const horizontal = Math.random() < 0.5;
-        const row = Math.floor(Math.random() * 10);
+        const horizontal = Math.random() < 0.5; //Random whether the ship placed is horizontal or not(boolean)
+        const row = Math.floor(Math.random() * 10); 
         const col = Math.floor(Math.random() * 10);
+        //generate random coordinate for ship
 
-        if (canPlaceShip(leftShips, row, col, botShips.length, horizontal, 10)){
-          const newShip = new Ship(botShips.name, botShips.size)
-          for (let i = 0; i< botShips.length; i++){
+        if (canPlaceShip(leftShips, row, col, ship.size, horizontal, 10)){
+          const newShip = new Ship(ship.name, shipship.size)
+          for (let i = 0; i< shipship.length; i++){
             let r = row;
             let c = col;
             if (horizontal){
