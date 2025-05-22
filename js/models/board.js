@@ -1,48 +1,77 @@
-class Board {
-    constructor(boardId) {
-      this.boardId = boardId; // ID of the board (e.g., player-board or bot-board)
-      this.grid = [];          // Array to store the cells of the grid
-      this.createBoard();      // Create the grid when the board is initialized
+import { Ship } from '/js/models/ship.js';
+
+export class Board {
+    constructor(gridElement, isOpponent = false) {
+        this.gridElement = gridElement;
+        this.isOpponent = isOpponent;
+        this.cells = [];
+        this.gridSize = 10;
+        this.initGrid();
     }
-  
-    // Create the 10x10 grid
-    createBoard() {
-      const boardElement = document.getElementById(this.boardId);
-      
-      // Create 100 cells (10x10 grid)
-      for (let i = 0; i < 100; i++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        cell.setAttribute("data-index", i);  // Set a unique data-index for each cell
-        this.grid.push(cell);
-        boardElement.appendChild(cell);  // Append the cell to the board container
-  
-        // Add event listener to handle clicks (for now, just logging)
-        if (this.boardId === 'player-board') {
-          cell.addEventListener("click", (e) => this.handleCellClick(e));
+
+    initGrid() {
+        this.gridElement.innerHTML = '';
+        this.cells = [];
+        for (let r = 0; r < this.gridSize; r++) {
+            const row = [];
+            for (let c = 0; c < this.gridSize; c++) {
+                const cellDiv = document.createElement('div');
+                cellDiv.classList.add('grid-cell');
+                cellDiv.dataset.row = r;
+                cellDiv.dataset.col = c;
+                this.gridElement.appendChild(cellDiv);
+
+                row.push({ ship: null, status: 'empty', cellDiv });
+            }
+            this.cells.push(row);
         }
-      }
     }
-  
-    // Handle the player's click to place ships on the player's board
-    handleCellClick(event) {
-      const cell = event.target;
-      const index = parseInt(cell.getAttribute("data-index"));
-  
-      // Convert index to row and column (to easily access cells)
-      const row = Math.floor(index / 10);
-      const col = index % 10;
-  
-      console.log(`Player clicked on cell at row: ${row}, col: ${col}`);
-      // You can later add logic here to place a ship when a cell is clicked
+
+    placeShip(ship, startRow, startCol, isHorizontal) {
+        const positions = [];
+        for (let i = 0; i < ship.length; i++) {
+            const r = startRow + (isHorizontal ? 0 : i);
+            const c = startCol + (isHorizontal ? i : 0);
+            if (r < 0 || r >= this.gridSize || c < 0 || c >= this.gridSize) return false;
+            if (this.cells[r][c].ship !== null) return false;
+            positions.push({ row: r, col: c });
+        }
+        ship.place(positions);
+        for (const pos of positions) {
+            this.cells[pos.row][pos.col].ship = ship;
+            if (!this.isOpponent) {
+                this.cells[pos.row][pos.col].cellDiv.classList.add('ship');
+            }
+        }
+        return true;
     }
-  
-    // Update the board by marking a cell as occupied (for ship placement)
-    updateCell(row, col, ship) {
-      const boardElement = document.getElementById(this.boardId);
-      const cellIndex = row * 10 + col;
-      const cell = boardElement.children[cellIndex];
-      cell.classList.add("occupied");
+
+    receiveAttack(row, col) {
+        const cell = this.cells[row][col];
+        if (cell.status !== 'empty') return false;
+
+        if (cell.ship) {
+            cell.status = 'hit';
+            cell.ship.hit();
+            cell.cellDiv.classList.add('hit');
+            if (cell.ship.isSunk) {
+                this.markSunkShip(cell.ship);
+            }
+            return 'hit';
+        } else {
+            cell.status = 'miss';
+            cell.cellDiv.classList.add('miss');
+            return 'miss';
+        }
     }
-  }
-  
+
+    markSunkShip(ship) {
+        for (const pos of ship.positions) {
+            this.cells[pos.row][pos.col].cellDiv.classList.add('sunk');
+        }
+    }
+
+    reset() {
+        this.initGrid();
+    }
+}

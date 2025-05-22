@@ -1,21 +1,22 @@
-class Ship {
-    constructor(name, size) {
-      this.name = name;
-      this.size = size;
-      this.isPlaced = false;
-      this.coordinates = [];  // The list of coordinates where the ship is placed
+export class Ship {
+    constructor(id, length) {
+        this.id = id;
+        this.length = length;
+        this.positions = [];
+        this.hits = 0;
+        this.isSunk = false;
     }
-  
-    // Place the ship on the board (define coordinates)
-    place(coords) {
-      this.coordinates = coords;
-      this.isPlaced = true;
+
+    place(positions) {
+        this.positions = positions;
+        this.hits = 0;
+        this.isSunk = false;
     }
-  
-    // Reset the ship (if the player wants to reposition it)
-    reset() {
-      this.coordinates = [];
-      this.isPlaced = false;
+
+    hit() {
+        this.hits++;
+        if (this.hits >= this.length) {
+            this.isSunk = true;
+        }
     }
-  }
-  
+}
