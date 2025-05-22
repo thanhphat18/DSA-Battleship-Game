@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+  //Global state for AI attack
+  let aiHitsQueue = [];
+  let aiLastHit = null;
+  let aiDirection = null;
+  let aiTriedDirection = [];
+
   // Create the player and bot boards
   const playerBoard = new Board('player-board');
   const botBoard = new Board('bot-board');
@@ -23,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Logic to start the game (e.g., first turn, etc.)
   }
 
-  //
+  //place ship function
   function canPlaceShip(currentShips, row, col, length, horizontal, gridSize) {
     const tempPositions = [];
     for (let i = 0; i < length; i++){
@@ -51,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  //
+  //Place botship randomly
   function placeBotShips(){
     leftShips = [];
     botShips.forEach(ship => ship.isPlaced = false);
@@ -81,6 +87,137 @@ document.addEventListener("DOMContentLoaded", () => {
           placed = true;
         }
       }
+    }
+  }
+
+  //Function for AI attack
+  function aiTurn() {
+        if (gameOver) return;
+
+        const target = aiChooseTarget();
+        if (!target) {
+            playerTurn = true;
+            turnIndicator.textContent = "Lượt của: Bạn";
+            enableOpponentGridAttacks();
+            return;
+        }
+
+        const { row, col } = target;
+        updateMessage(`Máy bắn vào ô (${row}, ${col}) của bạn...`, "ai-turn");
+
+        const result = processAttack(row, col, playerShips, playerGridElement, 'player', playerSunkList, playerShipConfigs);
+        aiHandleResult(row, col, result);
+
+        if (!gameOver) {
+            playerTurn = true;
+            turnIndicator.textContent = "Lượt của: Bạn";
+            enableOpponentGridAttacks();
+        }
+    }
+
+  //
+  function aiChooseTarget() {
+    let row, col;
+
+    //Try target queue first
+    while (aiHitsQueue.length > 0) {
+      const candidate = aiHitsQueue.shift();
+      const cell = playerGridElement.querySelector(`.grid-cell[data-row='${candidate.row}'][data-col='${candidate.col}']`)
+      if (cell && !cell.classList.contains('hit') && !cell.classList.contains('miss')) {
+        return candidate;
+      }
+    }
+
+    //Fallback: random shot
+    let attempts = 0;
+    while (attempts < GRID_SIZE * GRID_SIZE) {
+      row = Math.floor(Math.random() * GRID_SIZE);
+      col = Math.floor(Math.random() * GRID_SIZE);
+      const cell = playerGridElement.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
+      if (cell && !cell.classList.contains('hit') && !cell.classList.contains('miss')) {
+        return { row, col };
+      }
+      attempts++;
+    }
+
+    return null;
+  }
+
+  //
+  function aiHandleResult(row, col, result) {
+    if (result.hit) {
+      updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, "ai-hit");
+      if (!aiLastHit) {
+        aiLastHit = { row, col };
+        aiTriedDirections = [];
+        addAdjacentTargets(row, col);
+      } else if (!aiDirection) {
+        aiDirection = getDirection(aiLastHit, { row, col });
+        if (aiDirection) {
+          aiHitsQueue = [getNextCellInDirection(row, col, aiDirection)];
+        }
+      } else {
+        aiHitsQueue.unshift(getNextCellInDirection(row, col, aiDirection));
+      }
+
+      if (result.sunkShip) {
+        updateMessage(`Máy đã đánh chìm ${result.sunkShip.name} của bạn!`, "ai-sunk");
+        aiLastHit = null;
+        aiDirection = null;
+        aiHitsQueue = [];
+        aiTriedDirections = [];
+
+        if (checkWin(playerShips)) {
+          endGame(false) //AI win
+        }
+      }
+
+    } else {
+      updateMessage(`Máy bắn trượt tại (${row}, ${col}).`, "ai-miss");
+
+      if (aiDirection) {
+        aiDirection = reverseDirection(aiDirection);
+        aiHitsQueue = [getNextCellInDirection(aiLastHit.row, aiLastHit.col, aiDirection)];
+      } else if (aiLastHit) {
+        aiTriedDirections.push({ row, col });
+        addAdjacentTargets(aiLastHit.row, aiLastHit.col);
+      }
+    }
+  }
+
+  //Helper function for AI
+  function addAdjacentTargets(row, col) {
+    const directions = [
+      { dir: "up", row: row - 1, col },
+      { dir: "down", row: row + 1, col },
+      { dir: "left", row, col: col - 1 },
+      { dir: "right", row, col: col + 1 }
+    ];
+    directions.forEach(d => {
+      if (d.row >= 0 && d.row < GRID_SIZE && d.col >= 0 && d.col < GRID_SIZE) {
+        aiHitsQueue.push({ row: d.row, col: d.col });
+      }
+    });
+  }
+
+  function getDirection(from, to) {
+    if (from.row === to.row) return from.col < to.col ? "right" : "left";
+    if (from.col === to.col) return from.row < to.row ? "down" : "up";
+    return null;
+  }
+
+  function reverseDirection(dir) {
+    const map = { up: "down", down: "up", left: "right", right: "left" };
+    return map[dir] || null;
+  }
+
+  function getNextCellInDirection(row, col, dir) {
+    switch (dir) {
+      case "up": return { row: row - 1, col };
+      case "down": return { row: row + 1, col };
+      case "left": return { row, col: col - 1 };
+      case "right": return { row, col: col + 1 };
+      default: return null;
     }
   }
 
