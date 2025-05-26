@@ -1,5 +1,5 @@
-import { Ship } from './ship';
-import { Board } from './board';
+import { Ship } from '/js/models/ship.js';
+import { Board } from '/js/models/board.js';
 
 export class Player {
     constructor(name, gridElement, isOpponent = false) {

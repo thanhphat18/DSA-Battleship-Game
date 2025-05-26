@@ -1,8 +1,8 @@
-import { Player } from '../models/Player';
-import { AIPlayer } from '../bot/aiPlayer.js';
-import { SetupState } from './states/setupState.js';
-import { PlayState } from './states/playState.js';
-import { EndState } from './states/endState.js';
+import { Player } from '/js/models/player.js';
+import { AIPlayer } from '/js/bot/aiPlayer.js';
+import { SetupState } from '/js/game/states/setupState.js';
+import { PlayState } from '/js/game/states/playState.js';
+import { EndState } from '/js/game/states/endState.js';
 
 export class Game {
   constructor() {

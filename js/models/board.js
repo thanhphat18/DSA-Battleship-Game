@@ -1,4 +1,4 @@
-import { Ship } from "./ship";
+import { Ship } from "/js/models/ship.js";
 
 export class Board {
     constructor(gridElement, isOpponent = false) {

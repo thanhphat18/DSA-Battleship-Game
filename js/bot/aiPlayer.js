@@ -1,6 +1,7 @@
-import { Ship } from "../models/ship";
+import { Ship } from "/js/models/ship.js";
+import { Board } from "/js/models/board.js";
 
-class AIPlayer {
+export class AIPlayer {
     constructor(name, gridElement, isOpponent = true) {
         this.name = name;
         this.grid = new Board(gridElement, isOpponent);
@@ -123,42 +124,42 @@ class AIPlayer {
     }
     //Return choose coordinate (row, col)
 
-    handleResult(row, col, result) {
-        if (result.hit) {
-            updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, "ai-hit");
+    // handleResult(row, col, result) {
+    //     if (result.hit) {
+    //         updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, "ai-hit");
 
-            if (!this.lastHit) {
-                this.lastHit = { row, col };
-                this.triedDirections = [];
-                this.addAdjacentTargets(row, col);
-            } else if (!this.direction) {
-                this.direction = GridUtils.getDirection(this.lastHit, { row, col });
-                if (this.direction) {
-                    this.targetQueue = [GridUtils.nextInDirection(row, col, this.direction)];
-                }
-            } else {
-                this.targetQueue.unshift(GridUtils.nextInDirection(row, col, this.direction));
-            }
+    //         if (!this.lastHit) {
+    //             this.lastHit = { row, col };
+    //             this.triedDirections = [];
+    //             this.addAdjacentTargets(row, col);
+    //         } else if (!this.direction) {
+    //             this.direction = GridUtils.getDirection(this.lastHit, { row, col });
+    //             if (this.direction) {
+    //                 this.targetQueue = [GridUtils.nextInDirection(row, col, this.direction)];
+    //             }
+    //         } else {
+    //             this.targetQueue.unshift(GridUtils.nextInDirection(row, col, this.direction));
+    //         }
 
-            if (result.sunkShip) {
-                updateMessage(`Máy đã đánh chìm ${result.sunkShip.name} của bạn!`, "ai-sunk");
-                this.resetTargeting();
-                if (checkWin(this.ships)) {
-                    endGame(false);
-                }
-            }
-        } else {
-            updateMessage(`Máy bắn trượt tại (${row}, ${col}).`, "ai-miss");
+    //         if (result.sunkShip) {
+    //             updateMessage(`Máy đã đánh chìm ${result.sunkShip.name} của bạn!`, "ai-sunk");
+    //             this.resetTargeting();
+    //             if (checkWin(this.ships)) {
+    //                 endGame(false);
+    //             }
+    //         }
+    //     } else {
+    //         updateMessage(`Máy bắn trượt tại (${row}, ${col}).`, "ai-miss");
 
-            if (this.direction) {
-                this.direction = GridUtils.reverse(this.direction);
-                this.targetQueue = [GridUtils.nextInDirection(this.lastHit.row, this.lastHit.col, this.direction)];
-            } else if (this.lastHit) {
-                this.triedDirections.push({ row, col });
-                this.addAdjacentTargets(this.lastHit.row, this.lastHit.col);
-            }
-        }
-    }
+    //         if (this.direction) {
+    //             this.direction = GridUtils.reverse(this.direction);
+    //             this.targetQueue = [GridUtils.nextInDirection(this.lastHit.row, this.lastHit.col, this.direction)];
+    //         } else if (this.lastHit) {
+    //             this.triedDirections.push({ row, col });
+    //             this.addAdjacentTargets(this.lastHit.row, this.lastHit.col);
+    //         }
+    //     }
+    // }
 
     addAdjacentTargets(row, col) {
         const adjacents = GridUtils.adjacentCells(row, col, this.gridSize);
@@ -181,5 +182,11 @@ class AIPlayer {
         this.direction = null;
         this.targetQueue = [];
         this.triedDirections = [];
+    }
+
+    reset() {
+        this.grid.reset();
+        this.initializeShips();
+        this.shipsPlaced = false;
     }
 }
