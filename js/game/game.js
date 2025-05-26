@@ -1,227 +1,171 @@
-document.addEventListener("DOMContentLoaded", () => {
-  //Global state for AI attack
-  let aiHitsQueue = [];
-  let aiLastHit = null;
-  let aiDirection = null;
-  let aiTriedDirection = [];
+import { Player } from '../models/Player';
+import { SetupState } from './states/setupState.js';
+import { PlayState } from './states/playState.js';
+import { EndState } from './states/endState.js';
 
-  // Create the player and bot boards
-  const playerBoard = new Board('player-board');
-  const botBoard = new Board('bot-board');
+export class Game {
+    constructor() {
+        this.playerGridElement = document.getElementById('player-grid');
+        this.opponentGridElement = document.getElementById('opponent-grid');
+        this.messageArea = document.getElementById('message-area');
+        this.turnIndicator = document.getElementById('turn-indicator');
+        this.startGameButton = document.getElementById('start-game-button');
+        this.resetShipsButton = document.getElementById('reset-ships-button');
+        this.rotateShipButton = document.getElementById('rotate-ship-button');
+        this.shipsPalette = document.querySelectorAll('.ship-option');
 
-  // Create ships
-  const ship1 = new Ship('Battleship', 4);  // Ship with size 4
-  const ship2 = new Ship('Cruiser', 3);     // Ship with size 3
-  const ship3 = new Ship('Destroyer', 2);   // Ship with size 2
-  const ship4 = new Ship('Submarine', 3);   // Ship with size 3
-  const ship5 = new Ship('Carrier', 5);     // Ship with size 5
-  
-  // Store all ships in an array
-  const playerShips = [ship1, ship2, ship3, ship4, ship5];
-  const botShips = [ship1, ship2, ship3, ship4, ship5];
+        this.player = new Player('You', this.playerGridElement);
+        this.opponent = new Player('Opponent', this.opponentGridElement, true);
 
-  // Create the ship list using the ShipList class
-  const shipList = new ShipList('ships', playerShips);  // Pass the container ID ('ships') and the ship array
+        this.isHorizontal = true;
+        this.selectedShipId = null;
+        this.gameStarted = false;
+        this.playerTurn = true;
 
-  // Function to start the game after placing ships
-  function startGame() {
-    console.log("Game Started! Place your ships and make your moves.");
-    // Logic to start the game (e.g., first turn, etc.)
-  }
+        this.states = {
+            setup: new SetupState(this),
+            play: new PlayState(this),
+            end: new EndState(this),
+        };
 
-  //place ship function
-  function canPlaceShip(currentShips, row, col, length, horizontal, gridSize) {
-    const tempPositions = [];
-    for (let i = 0; i < length; i++){
-      let r = row;
-      let c = col;
-      if (horizontal){
-        c += i;
-      } else {
-        r += i;
-      }
-      if (r >= gridSize || c >= gridSize) return false;
-      tempPositions.push({row: r, col: c})
+        this.currentState = this.states.setup;
+
+        this.init();
     }
 
-    //Check for overlapping
-    for (const ship of currentShips){
-      for (const coord of ship.coordinates){
-        for (const tempPos of tempPositions) {
-          if (coord.row === tempPos.row && coord.col === tempPos.col){
-            return false;
-          }
-        }
-      }
+    init() {
+        this.attachEventListeners();
+        this.currentState.enter();
     }
-    return true;
-  }
 
-  //Place botship randomly
-  function placeBotShips(){
-    leftShips = [];
-    botShips.forEach(ship => ship.isPlaced = false);
+    attachEventListeners() {
+        this.shipsPalette.forEach(shipEl => {
+            shipEl.addEventListener('click', () => {
+                this.currentState.onShipPaletteClick(shipEl.dataset.id);
+            });
+        });
 
-    for (const ship of botShips){
-      let placed = false;
-      while (!placed){
-        const horizontal = Math.random() < 0.5; //Random whether the ship placed is horizontal or not(boolean)
-        const row = Math.floor(Math.random() * 10); 
-        const col = Math.floor(Math.random() * 10);
-        //generate random coordinate for ship
+        this.rotateShipButton.addEventListener('click', () => {
+            this.currentState.onRotateButtonClick();
+        });
 
-        if (canPlaceShip(leftShips, row, col, ship.size, horizontal, 10)){
-          const newShip = new Ship(ship.name, shipship.size)
-          for (let i = 0; i< shipship.length; i++){
-            let r = row;
-            let c = col;
-            if (horizontal){
-              c += i
-            } else {
-              r += i
+        this.startGameButton.addEventListener('click', () => {
+            this.currentState.onStartButtonClick();
+        });
+
+        this.resetShipsButton.addEventListener('click', () => {
+            this.currentState.onResetButtonClick();
+        });
+
+        this.playerGridElement.addEventListener('click', e => {
+            this.currentState.onPlayerGridClick(e);
+        });
+
+        this.opponentGridElement.addEventListener('click', e => {
+            this.currentState.onOpponentGridClick(e);
+        });
+    }
+
+    switchState(stateName) {
+        this.currentState.exit();
+        this.currentState = this.states[stateName];
+        this.currentState.enter();
+    }
+
+    markShipSelectedPlaced(shipId) {
+        this.shipsPalette.forEach(shipEl => {
+            if (shipEl.dataset.id === shipId) {
+                shipEl.style.opacity = 0.5;
+                shipEl.style.pointerEvents = 'none';
             }
-            newShip.coordinates.push({row: r, col:c})
-          }
-          leftShips.push(newShip);
-          ship.isPlaced = true;
-          placed = true;
+        });
+    }
+
+    setupOpponentShips() {
+        this.opponent.ships.forEach(ship => {
+            let placed = false;
+            while (!placed) {
+                const isHorizontal = Math.random() < 0.5;
+                const row = Math.floor(Math.random() * 10);
+                const col = Math.floor(Math.random() * 10);
+                placed = this.opponent.placeShip(ship.id, row, col, isHorizontal);
+            }
+        });
+    }
+
+    opponentMove() {
+        let row, col, result;
+        do {
+            row = Math.floor(Math.random() * 10);
+            col = Math.floor(Math.random() * 10);
+            result = this.player.grid.receiveAttack(row, col);
+        } while (!result);
+
+        if (result === 'hit') {
+            this.updateMessage('Đối thủ đã trúng tàu của bạn!');
+            if (this.player.allShipsSunk()) {
+                this.updateMessage('Bạn đã thua! 😢');
+                this.switchState('end');
+                return;
+            }
+        } else {
+            this.updateMessage('Đối thủ đã bắn trượt.');
         }
-      }
-    }
-  }
 
-  //Function for AI attack
-  function aiTurn() {
-        if (gameOver) return;
-
-        const target = aiChooseTarget();
-        if (!target) {
-            playerTurn = true;
-            turnIndicator.textContent = "Lượt của: Bạn";
-            enableOpponentGridAttacks();
-            return;
-        }
-
-        const { row, col } = target;
-        updateMessage(`Máy bắn vào ô (${row}, ${col}) của bạn...`, "ai-turn");
-
-        const result = processAttack(row, col, playerShips, playerGridElement, 'player', playerSunkList, playerShipConfigs);
-        aiHandleResult(row, col, result);
-
-        if (!gameOver) {
-            playerTurn = true;
-            turnIndicator.textContent = "Lượt của: Bạn";
-            enableOpponentGridAttacks();
-        }
+        this.playerTurn = true;
+        this.turnIndicator.textContent = 'Lượt của: Bạn';
     }
 
-  //
-  function aiChooseTarget() {
-    let row, col;
-
-    //Try target queue first
-    while (aiHitsQueue.length > 0) {
-      const candidate = aiHitsQueue.shift();
-      const cell = playerGridElement.querySelector(`.grid-cell[data-row='${candidate.row}'][data-col='${candidate.col}']`)
-      if (cell && !cell.classList.contains('hit') && !cell.classList.contains('miss')) {
-        return candidate;
-      }
+    updateMessage(text) {
+        this.messageArea.textContent = text;
     }
 
-    //Fallback: random shot
-    let attempts = 0;
-    while (attempts < GRID_SIZE * GRID_SIZE) {
-      row = Math.floor(Math.random() * GRID_SIZE);
-      col = Math.floor(Math.random() * GRID_SIZE);
-      const cell = playerGridElement.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
-      if (cell && !cell.classList.contains('hit') && !cell.classList.contains('miss')) {
-        return { row, col };
-      }
-      attempts++;
+    updateStartButtonState() {
+        const allPlaced = this.player.ships.every(ship => ship.positions.length > 0);
+        this.startGameButton.disabled = !allPlaced;
     }
 
-    return null;
-  }
-
-  //
-  function aiHandleResult(row, col, result) {
-    if (result.hit) {
-      updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, "ai-hit");
-      if (!aiLastHit) {
-        aiLastHit = { row, col };
-        aiTriedDirections = [];
-        addAdjacentTargets(row, col);
-      } else if (!aiDirection) {
-        aiDirection = getDirection(aiLastHit, { row, col });
-        if (aiDirection) {
-          aiHitsQueue = [getNextCellInDirection(row, col, aiDirection)];
-        }
-      } else {
-        aiHitsQueue.unshift(getNextCellInDirection(row, col, aiDirection));
-      }
-
-      if (result.sunkShip) {
-        updateMessage(`Máy đã đánh chìm ${result.sunkShip.name} của bạn!`, "ai-sunk");
-        aiLastHit = null;
-        aiDirection = null;
-        aiHitsQueue = [];
-        aiTriedDirections = [];
-
-        if (checkWin(playerShips)) {
-          endGame(false) //AI win
-        }
-      }
-
-    } else {
-      updateMessage(`Máy bắn trượt tại (${row}, ${col}).`, "ai-miss");
-
-      if (aiDirection) {
-        aiDirection = reverseDirection(aiDirection);
-        aiHitsQueue = [getNextCellInDirection(aiLastHit.row, aiLastHit.col, aiDirection)];
-      } else if (aiLastHit) {
-        aiTriedDirections.push({ row, col });
-        addAdjacentTargets(aiLastHit.row, aiLastHit.col);
-      }
+    enableShipPlacementUI() {
+        this.shipsPalette.forEach(shipEl => {
+            shipEl.style.pointerEvents = 'auto';
+            shipEl.style.opacity = 1;
+        });
+        this.rotateShipButton.disabled = false;
+        this.startGameButton.disabled = true;
+        this.resetShipsButton.disabled = false;
     }
-  }
 
-  //Helper function for AI
-  function addAdjacentTargets(row, col) {
-    const directions = [
-      { dir: "up", row: row - 1, col },
-      { dir: "down", row: row + 1, col },
-      { dir: "left", row, col: col - 1 },
-      { dir: "right", row, col: col + 1 }
-    ];
-    directions.forEach(d => {
-      if (d.row >= 0 && d.row < GRID_SIZE && d.col >= 0 && d.col < GRID_SIZE) {
-        aiHitsQueue.push({ row: d.row, col: d.col });
-      }
-    });
-  }
-
-  function getDirection(from, to) {
-    if (from.row === to.row) return from.col < to.col ? "right" : "left";
-    if (from.col === to.col) return from.row < to.row ? "down" : "up";
-    return null;
-  }
-
-  function reverseDirection(dir) {
-    const map = { up: "down", down: "up", left: "right", right: "left" };
-    return map[dir] || null;
-  }
-
-  function getNextCellInDirection(row, col, dir) {
-    switch (dir) {
-      case "up": return { row: row - 1, col };
-      case "down": return { row: row + 1, col };
-      case "left": return { row, col: col - 1 };
-      case "right": return { row, col: col + 1 };
-      default: return null;
+    disableShipPlacementUI() {
+        this.shipsPalette.forEach(shipEl => {
+            shipEl.style.pointerEvents = 'none';
+            shipEl.style.opacity = 0.5;
+        });
+        this.rotateShipButton.disabled = true;
     }
-  }
 
-  // Add event listener to the start game button
-  const startButton = document.getElementById('start-btn');
-  startButton.addEventListener("click", startGame);
+    resetGame() {
+        this.player.reset();
+        this.opponent.reset();
+
+        this.selectedShipId = null;
+        this.gameStarted = false;
+        this.playerTurn = true;
+        this.isHorizontal = true;
+
+        this.rotateShipButton.textContent = 'Xoay tàu (Ngang)';
+        this.updateMessage('Chào mừng đến với Battleship! Hãy đặt tàu của bạn.');
+
+        this.shipsPalette.forEach(shipEl => {
+            shipEl.style.opacity = 1;
+            shipEl.style.pointerEvents = 'auto';
+        });
+
+        this.rotateShipButton.disabled = false;
+        this.startGameButton.disabled = true;
+        this.resetShipsButton.disabled = false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    new Game();
 });

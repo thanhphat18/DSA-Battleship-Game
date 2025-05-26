@@ -1,47 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Battleship Game</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/shipstyle.css"> <!-- Link to your CSS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battleship Game</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header>
-    <h1>Battleship Game</h1>
-  </header>
+    <header>
+        <h1>Battleship Game</h1>
+    </header>
 
-  <main>
-    <section id="game-info">
-      <h2>Game Info</h2>
-      <p id="game-status">Place your ships and get ready to battle!</p>
-    </section>
+    <main>
+        <div class="game-container">
+            <div class="grid-container" id="player-grid-container">
+                <h2>Lưới của bạn</h2>
+                <div class="grid" id="player-grid">
+                    </div>
+                <div class="ship-placement-controls">
+                    <h3>Đặt tàu của bạn:</h3>
+                    <div class="ships-palette">
+                        <div class="ship-option" data-length="5" data-id="carrier" draggable="true">Tàu sân bay (5)</div>
+                        <div class="ship-option" data-length="4" data-id="battleship" draggable="true">Tàu chiến (4)</div>
+                        <div class="ship-option" data-length="3" data-id="cruiser" draggable="true">Tàu tuần dương (3)</div>
+                        <div class="ship-option" data-length="3" data-id="submarine" draggable="true">Tàu ngầm (3)</div>
+                        <div class="ship-option" data-length="2" data-id="destroyer" draggable="true">Tàu khu trục (2)</div>
+                    </div>
+                    <button id="rotate-ship-button">Xoay tàu (Ngang)</button>
+                    <button id="start-game-button" disabled>Bắt đầu chơi</button>
+                    <button id="reset-ships-button">Đặt lại tàu</button>
+                </div>
+            </div>
 
-    <section id="ship-list">
-      <h2>Ship List</h2>
-      <div id="ships">
-        <!-- Ships will be displayed here for dragging -->
-      </div>
-    </section>
+            <div class="grid-container" id="opponent-grid-container">
+                <h2>Lưới đối thủ</h2>
+                <div class="grid" id="opponent-grid">
+                    </div>
+                 <p id="turn-indicator">Lượt của: Bạn</p>
+            </div>
+        </div>
 
-    <section id="boards">
-      <h3>Your Board</h3>
-      <div id="player-board" class="board">
-        <!-- Player's board grid will be created here -->
-      </div>
-      <h3>Bot's Board</h3>
-      <div id="bot-board" class="board">
-        <!-- Bot's board grid will be created here (visible but not interactive) -->
-      </div>
-    </section>
+        <div class="game-info">
+            <h3>Thông tin trò chơi</h3>
+            <p id="message-area">Chào mừng đến với Battleship! Hãy đặt tàu của bạn.</p>
+            <div id="sunk-ships-info">
+                <h4>Tàu địch đã bị đánh chìm:</h4>
+                <ul id="opponent-sunk-list"></ul>
+                <h4>Tàu của bạn đã bị đánh chìm:</h4>
+                <ul id="player-sunk-list"></ul>
+            </div>
+        </div>
+    </main>
 
-    <button id="start-btn">Start Game</button>
-  </main>
+    <footer>
+        <p>&copy; 2025 - Battleship Project</p>
+    </footer>
 
-  <script src="js/models/board.js"></script>  <!-- Link to your Board-related logic -->
-  <script src="js/models/ship.js"></script>  <!-- Ship-related logic -->
-  <script src="js/models/shift-list.js"></script>
-  <script src="js/game/game.js"></script>  <!-- Game logic -->
+    <script type="module" src= "js/game/game.js"></script>
 </body>
 </html>
