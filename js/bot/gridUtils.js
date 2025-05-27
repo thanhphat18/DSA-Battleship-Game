@@ -1,4 +1,4 @@
-class GridUtils {
+export class GridUtils {
     static adjacentCells(row, col, size) {
         const cells = [];
         if (row > 0) cells.push({ row: row - 1, col });
