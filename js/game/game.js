@@ -1,5 +1,5 @@
 import { Player } from '/js/models/player.js';
-import { AIPlayer } from '/js/bot/aiPlayer.js';
+import { AIPlayer } from '/js/bot/airPlayer.js';
 import { SetupState } from '/js/game/states/setupState.js';
 import { PlayState } from '/js/game/states/playState.js';
 import { EndState } from '/js/game/states/endState.js';

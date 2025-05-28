@@ -1,5 +1,5 @@
 // ✅ Refactored playState.js
-import { GridUtils } from '/js/bot/gridUtils.js';
+import { GridUtils } from '/js/bot/gridUtil.js';
 
 export class PlayState {
     constructor(game) {
