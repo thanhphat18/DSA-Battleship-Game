@@ -1,28 +1,149 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // Create the player and bot boards
-  const playerBoard = new Board('player-board');
-  const botBoard = new Board('bot-board');
+import { Player } from '/js/models/player.js';
+import { AIPlayer } from '/js/bot/aiPlayer.js';
+import { SetupState } from '/js/game/states/setupState.js';
+import { PlayState } from '/js/game/states/playState.js';
+import { EndState } from '/js/game/states/endState.js';
 
-  // Create ships
-  const ship1 = new Ship('Battleship', 4);  // Ship with size 4
-  const ship2 = new Ship('Cruiser', 3);     // Ship with size 3
-  const ship3 = new Ship('Destroyer', 2);   // Ship with size 2
-  const ship4 = new Ship('Submarine', 3);   // Ship with size 3
-  const ship5 = new Ship('Carrier', 5);     // Ship with size 5
-  
-  // Store all ships in an array
-  const playerShips = [ship1, ship2, ship3, ship4, ship5];
+export class Game {
+  constructor() {
+    this.playerGridElement = document.getElementById('player-grid');
+    this.opponentGridElement = document.getElementById('opponent-grid');
+    this.messageArea = document.getElementById('message-area');
+    this.turnIndicator = document.getElementById('turn-indicator');
+    this.startGameButton = document.getElementById('start-game-button');
+    this.resetShipsButton = document.getElementById('reset-ships-button');
+    this.rotateShipButton = document.getElementById('rotate-ship-button');
+    this.shipsPalette = document.querySelectorAll('.ship-option');
 
-  // Create the ship list using the ShipList class
-  const shipList = new ShipList('ships', playerShips);  // Pass the container ID ('ships') and the ship array
+    this.gridSize = 10;
+    // const opponentSunkList = document.getElementById('opponent-sunk-list');
+    // const playerSunkList = document.getElementById('player-sunk-list');
 
-  // Function to start the game after placing ships
-  function startGame() {
-    console.log("Game Started! Place your ships and make your moves.");
-    // Logic to start the game (e.g., first turn, etc.)
+    this.player = new Player('You', this.playerGridElement);
+    this.opponent = new AIPlayer('Opponent', this.opponentGridElement);
+
+    this.isHorizontal = true;
+    this.selectedShipId = null;
+    this.gameStarted = false;
+    this.playerTurn = true;
+
+    //AI set up
+    this.targetQueue = [];
+    this.lastHit = null;
+    this.direction = null;
+    this.triedDirections = [];
+
+    this.states = {
+      setup: new SetupState(this),
+      play: new PlayState(this),
+      end: new EndState(this),
+    };
+
+    this.currentState = this.states.setup;
+
+    this.init();
   }
 
-  // Add event listener to the start game button
-  const startButton = document.getElementById('start-btn');
-  startButton.addEventListener("click", startGame);
+  init() {
+    this.attachEventListeners();
+    this.currentState.enter();
+  }
+
+  
+
+  attachEventListeners() {
+    this.shipsPalette.forEach(shipEl => {
+      shipEl.addEventListener('click', () => {
+        this.currentState.onShipPaletteClick(shipEl.dataset.id);
+      });
+    });
+
+    this.rotateShipButton.addEventListener('click', () => {
+      this.currentState.onRotateButtonClick();
+    });
+
+    this.startGameButton.addEventListener('click', () => {
+      this.currentState.onStartButtonClick();
+    });
+
+    this.resetShipsButton.addEventListener('click', () => {
+      this.currentState.onResetButtonClick();
+    });
+
+    this.playerGridElement.addEventListener('click', e => {
+      this.currentState.onPlayerGridClick(e);
+    });
+
+    this.opponentGridElement.addEventListener('click', e => {
+      this.currentState.onOpponentGridClick(e);
+    });
+  }
+
+  switchState(stateName) {
+    this.currentState.exit();
+    this.currentState = this.states[stateName];
+    this.currentState.enter();
+  }
+
+  markShipSelectedPlaced(shipId) {
+    this.shipsPalette.forEach(shipEl => {
+      if (shipEl.dataset.id === shipId) {
+        shipEl.style.opacity = 0.5;
+        shipEl.style.pointerEvents = 'none';
+      }
+    });
+  }
+
+  updateMessage(text) {
+    this.messageArea.textContent = text;
+  }
+
+  updateStartButtonState() {
+    const allPlaced = this.player.ships.every(ship => ship.positions.length > 0);
+    this.startGameButton.disabled = !allPlaced;
+  }
+
+  enableShipPlacementUI() {
+    this.shipsPalette.forEach(shipEl => {
+      shipEl.style.pointerEvents = 'auto';
+      shipEl.style.opacity = 1;
+    });
+    this.rotateShipButton.disabled = false;
+    this.startGameButton.disabled = true;
+    this.resetShipsButton.disabled = false;
+  }
+
+  disableShipPlacementUI() {
+    this.shipsPalette.forEach(shipEl => {
+      shipEl.style.pointerEvents = 'none';
+      shipEl.style.opacity = 0.5;
+    });
+    this.rotateShipButton.disabled = true;
+  }
+
+  resetGame() {
+    this.player.reset();
+    this.opponent.reset();
+
+    this.selectedShipId = null;
+    this.gameStarted = false;
+    this.playerTurn = true;
+    this.isHorizontal = true;
+
+    this.rotateShipButton.textContent = 'Xoay tàu (Ngang)';
+    this.updateMessage('Chào mừng đến với Battleship! Hãy đặt tàu của bạn.');
+
+    this.shipsPalette.forEach(shipEl => {
+      shipEl.style.opacity = 1;
+      shipEl.style.pointerEvents = 'auto';
+    });
+
+    this.rotateShipButton.disabled = false;
+    this.startGameButton.disabled = true;
+    this.resetShipsButton.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new Game();
 });
