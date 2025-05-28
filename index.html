@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>BATTLESHIP GAME</title>
+  <title>BattleLine: Navy War</title>
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
@@ -14,7 +14,7 @@
     <section class="game-board">
       <div class="player-area">
         <h2>Player's Board</h2>
-        <div id="player-board" class="grid"></div>
+        <div id="player-grid" class="grid"></div>
         <div class="controls">
           <div class="ships-palette" id="ships-palette">
             <button class="ship-option" data-length="5" data-id="carrier">Carrier (5)</button>
@@ -33,7 +33,7 @@
 
       <div class="opponent-area">
         <h2>Opponent's Board</h2>
-        <div id="enemy-board" class="grid"></div>
+        <div id="opponent-grid" class="grid"></div>
         <p id="turn-indicator">Turn: Yours</p>
       </div>
     </section>
@@ -48,7 +48,7 @@
           <ul id="opponent-sunk-list"></ul>
         </div>
         <div>
-          <strong>Player's sunk list:</strong>
+          <strong>Player's sunk ships:</strong>
           <ul id="player-sunk-list"></ul>
         </div>
       </div>
@@ -59,6 +59,6 @@
     <p>&copy; 2024.2025 - Battleship Project</p>
   </footer>
 
-  <script type="module" src="./js/game/game.js"></script>
+  <script type="module" src="/js/game/game.js"></script>
 </body>
 </html>
