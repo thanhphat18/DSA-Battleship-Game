@@ -62,7 +62,7 @@ main {
     margin: 10px 0;
 }
 
-.cell {
+.grid-cell {
     width: 30px;
     height: 30px;
     background-color: #e0edf3;
@@ -72,30 +72,30 @@ main {
 }
 
 /* Hiệu ứng game */
-.cell.hit {
+.grid-cell.hit {
     background-color: #ff6347 !important; /* Tomato */
     background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="white">💥</text></svg>');
     background-size: 70%;
     background-repeat: no-repeat;
     background-position: center;
 }
-.cell.miss {
+.grid-cell.miss {
     background-color: lightblue;
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="black">●</text></svg>');
-    background-size: 30%;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="black">🌊</text></svg>');
+    background-size: 70%;
     background-repeat: no-repeat;
     background-position: center;
 }
-.cell.ship {
+.grid-cell.ship {
     background-color: rgb(8, 27, 112);
 }
-.cell.sunk {
+.grid-cell.sunk {  /* Đây đang bị lỗi hiển thị màu*/
     background-color: darkred;
 }
-.cell.placement-preview {
+.grid-cell.placement-preview {
     background-color: rgba(0, 255, 0, 0.5);
 }
-.cell.invalid-placement {
+.grid-cell.invalid-placement {
     background-color: rgba(255, 0, 0, 0.5);
 }
 
