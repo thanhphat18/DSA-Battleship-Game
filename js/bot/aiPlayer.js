@@ -1,4 +1,3 @@
-// ✅ Refactored aiPlayer.js
 import { Ship } from '/js/models/ship.js';
 import { Board } from '/js/models/board.js';
 

@@ -3,6 +3,8 @@ import { AIPlayer } from '/js/bot/aiPlayer.js';
 import { SetupState } from '/js/game/states/setupState.js';
 import { PlayState } from '/js/game/states/playState.js';
 import { EndState } from '/js/game/states/endState.js';
+import { SoundManager } from '/sounds/soundManager.js';
+
 
 export class Game {
   constructor() {
@@ -14,10 +16,8 @@ export class Game {
     this.resetShipsButton = document.getElementById('reset-ships-button');
     this.rotateShipButton = document.getElementById('rotate-ship-button');
     this.shipsPalette = document.querySelectorAll('.ship-option');
-
     this.gridSize = 10;
-    // const opponentSunkList = document.getElementById('opponent-sunk-list');
-    // const playerSunkList = document.getElementById('player-sunk-list');
+    this.sound = new SoundManager();
 
     this.player = new Player('You', this.playerGridElement);
     this.opponent = new AIPlayer('Opponent', this.opponentGridElement);

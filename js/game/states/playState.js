@@ -1,4 +1,3 @@
-// ✅ Refactored playState.js
 import { GridUtils } from '/js/bot/gridUtils.js';
 
 export class PlayState {
@@ -61,6 +60,7 @@ export class PlayState {
         }
 
         if (result.hit) {
+            this.game.sound.play('fire');
             this.game.updateMessage('Bạn đã trúng tàu địch!');
             if (this.game.opponent.allShipsSunk()) {
                 this.game.updateMessage('Bạn thắng rồi! 🎉');
@@ -75,46 +75,6 @@ export class PlayState {
         this.game.turnIndicator.textContent = 'Lượt của: Đối thủ';
 
         setTimeout(() => this.opponentMove(), 1000);
-    }
-
-    processAttack(row, col, targetShips, targetGridElement, targetOwner, sunkListElement, targetShipConfigs) {
-        const cell = targetGridElement.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
-        if (!cell || cell.classList.contains('hit') || cell.classList.contains('miss')) return false;
-
-        let hitShip = false;
-        let sunkShipInfo = null;
-
-        for (const ship of targetShips) {
-            if (ship.isSunk) continue;
-
-            for (const pos of ship.positions) {
-                if (pos.row === row && pos.col === col && !pos.hit) {
-                    pos.hit = true;
-                    ship.hit();
-                    cell.classList.add('hit');
-                    hitShip = true;
-
-                    if (ship.isSunk) {
-                        sunkShipInfo = ship;
-                        ship.positions.forEach(p => {
-                            const sunkCell = targetGridElement.querySelector(`.grid-cell[data-row='${p.row}'][data-col='${p.col}']`);
-                            sunkCell && sunkCell.classList.add('sunk');
-                        });
-                        const li = document.createElement('li');
-                        li.textContent = `${ship.id} (${ship.length})`;
-                        sunkListElement.appendChild(li);
-                    }
-                    break;
-                }
-            }
-            if (hitShip) break;
-        }
-
-        if (!hitShip) {
-            cell.classList.add('miss');
-        }
-
-        return { hit: hitShip, sunkShip: sunkShipInfo };
     }
 
     opponentMove() {
@@ -141,6 +101,47 @@ export class PlayState {
         }
     }
 
+    processAttack(row, col, targetShips, targetGridElement, targetOwner, sunkListElement, targetShipConfigs) {
+        const cell = targetGridElement.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
+        if (!cell || cell.classList.contains('hit') || cell.classList.contains('miss')) return false;
+
+        let hitShip = false;
+        let sunkShipInfo = null;
+
+        for (const ship of targetShips) {
+            if (ship.isSunk) continue;
+
+            for (const pos of ship.positions) {
+                if (pos.row === row && pos.col === col && !pos.hit) {
+                    pos.hit = true;
+                    ship.hit();
+                    cell.classList.add('hit');
+                    hitShip = true;
+
+                    if (ship.isSunk) {
+                        this.game.sound.play('sunk');
+                        sunkShipInfo = ship;
+                        ship.positions.forEach(p => {
+                            const sunkCell = targetGridElement.querySelector(`.grid-cell[data-row='${p.row}'][data-col='${p.col}']`);
+                            sunkCell && sunkCell.classList.add('sunk');
+                        });
+                        const li = document.createElement('li');
+                        li.textContent = `${ship.id} (${ship.length})`;
+                        sunkListElement.appendChild(li);
+                    }
+                    break;
+                }
+            }
+            if (hitShip) break;
+        }
+
+        if (!hitShip) {
+            cell.classList.add('miss');
+        }
+
+        return { hit: hitShip, sunkShip: sunkShipInfo };
+    }
+
     chooseTarget() {
         while (this.targetQueue.length > 0) {
             const target = this.targetQueue.shift();
@@ -160,6 +161,7 @@ export class PlayState {
 
     handleResult(row, col, result) {
         if (result.hit) {
+            this.game.sound.play('fire');
             this.game.updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, 'ai-hit');
             if (!this.lastHit) {
                 this.lastHit = { row, col };
@@ -175,6 +177,7 @@ export class PlayState {
             }
 
             if (result.sunkShip) {
+                this.game.sound.play('sunk');
                 this.game.updateMessage(`Máy đã đánh chìm ${result.sunkShip.id} của bạn!`, 'ai-sunk');
                 this.resetTargeting();
             }
