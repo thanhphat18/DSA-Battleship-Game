@@ -1,47 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Battleship Game</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/shipstyle.css"> <!-- Link to your CSS -->
+  <meta charset="UTF-8" />
+  <title>BattleLine: Navy War</title>
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
   <header>
-    <h1>Battleship Game</h1>
+    <h1>BattleLine: Navy War</h1>
   </header>
 
   <main>
-    <section id="game-info">
-      <h2>Game Info</h2>
-      <p id="game-status">Place your ships and get ready to battle!</p>
-    </section>
+    <section class="game-board">
+      <div class="player-area">
+        <h2>Player's Board</h2>
+        <div id="player-grid" class="grid"></div>
+        <div class="controls">
+          <div class="ships-palette" id="ships-palette">
+            <button class="ship-option" data-length="5" data-id="carrier">Carrier (5)</button>
+            <button class="ship-option" data-length="4" data-id="battleship">Battleship (4)</button>
+            <button class="ship-option" data-length="3" data-id="cruiser">Cruiser (3)</button>
+            <button class="ship-option" data-length="3" data-id="submarine">Submarine (3)</button>
+            <button class="ship-option" data-length="2" data-id="destroyer">Destroyer (2)</button>
+          </div>
+          <div class="action-buttons">
+            <button id="rotate-ship-button">ROTATE (Horizontal)</button>
+            <button id="start-game-button" disabled>START</button>
+            <button id="reset-ships-button">RESET</button>
+          </div>
+        </div>
+      </div>
 
-    <section id="ship-list">
-      <h2>Ship List</h2>
-      <div id="ships">
-        <!-- Ships will be displayed here for dragging -->
+      <div class="opponent-area">
+        <h2>Opponent's Board</h2>
+        <div id="opponent-grid" class="grid"></div>
+        <p id="turn-indicator">Turn: Yours</p>
       </div>
     </section>
 
-    <section id="boards">
-      <h3>Your Board</h3>
-      <div id="player-board" class="board">
-        <!-- Player's board grid will be created here -->
-      </div>
-      <h3>Bot's Board</h3>
-      <div id="bot-board" class="board">
-        <!-- Bot's board grid will be created here (visible but not interactive) -->
+    <section class="status-panel">
+      <h3>Game's Information</h3>
+      <p id="message-area">Welcome to Battleship! Please select the ship and place on the board.</p>
+
+      <div class="sunk-lists">
+        <div>
+          <strong>Opponent's sunk ships:</strong>
+          <ul id="opponent-sunk-list"></ul>
+        </div>
+        <div>
+          <strong>Player's sunk ships:</strong>
+          <ul id="player-sunk-list"></ul>
+        </div>
       </div>
     </section>
-
-    <button id="start-btn">Start Game</button>
   </main>
 
-  <script src="js/models/board.js"></script>  <!-- Link to your Board-related logic -->
-  <script src="js/models/ship.js"></script>  <!-- Ship-related logic -->
-  <script src="js/models/shift-list.js"></script>
-  <script src="js/game/game.js"></script>  <!-- Game logic -->
+  <footer>
+    <p>&copy; 2024.2025 - Battleship Project</p>
+  </footer>
+
+  <script type="module" src="./js/game/game.js"></script>
 </body>
 </html>

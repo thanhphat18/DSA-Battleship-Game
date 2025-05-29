@@ -1,59 +1,186 @@
-/* General styles */
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Toàn bộ trang */
 body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin-top: 50px;
+    font-family: "Segoe UI", sans-serif;
+    background-color: #f8f6e6;
+    color: #333;
 }
 
-h1, h2, h3 {
-  font-size: 24px;
+/* Header */
+header {
+    background-color: #227fcb;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8ps;
+    text-align: center;
 }
 
-#game-info {
-  margin-bottom: 20px;
+/* Layout chính */
+main {
+    background-image: url('/image/battle.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
 }
 
-#start-btn {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
+/* Vùng chứa hai bảng */
+.game-board {
+    display: flex;
+    gap: 50px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-#start-btn:hover {
-  background-color: #45a049;
+/* Player và Opponent */
+.player-area, .opponent-area {
+    background-color: #b9dff1;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    min-width: 300px;
+    text-align: center;
 }
 
-/* Board styling */
-.board {
-  display: grid;
-  grid-template-columns: repeat(10, 30px);  /* 10 equal columns */
-  grid-template-rows: repeat(10, 30px);  /* 10 equal rows */
-  gap: 2px;
-  border: 1px solid #000;
-  background-color: lightblue;
-  margin: 20px auto;
-  width: 320px;
-  height: 320px;
+/* Bảng */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-template-rows: repeat(10, 30px);
+    gap: 2px;
+    justify-content: center;
+    margin: 10px 0;
 }
 
-.board h3 {
-  text-align: center;
-  margin-bottom: 10px;
+.grid-cell {
+    width: 30px;
+    height: 30px;
+    background-color: #e0edf3;
+    border: 1px solid #a4c4d4;
+    cursor: pointer;
+    transition: 0.2s ease;
 }
 
-/* Cell styling */
-.cell {
-  width: 30px;
-  height: 30px;
-  background-color: lightblue;
-  border: 1px solid #ccc;
-  cursor: pointer;
+/* Hiệu ứng game */
+.grid-cell.hit {
+    background-color: #ff6347 !important; /* Tomato */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="white">💥</text></svg>');
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.grid-cell.miss {
+    background-color: lightblue;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="black">🌊</text></svg>');
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.grid-cell.ship {
+    background-color: rgb(8, 27, 112);
+}
+.grid-cell.sunk {  /* Đây đang bị lỗi hiển thị màu*/
+    background-color: darkred;
+}
+.grid-cell.placement-preview {
+    background-color: rgba(0, 255, 0, 0.5);
+}
+.grid-cell.invalid-placement {
+    background-color: rgba(255, 0, 0, 0.5);
 }
 
-.cell.occupied {
-  background-color: #333;  /* Dark gray for occupied cells */
+/* Controls */
+.controls {
+    margin-top: 15px;
+}
+.ships-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.ship-option {
+    padding: 8px 12px;
+    background-color: #7e92a3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: grab;
+}
+.ship-option:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+.action-buttons button {
+    margin: 5px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background-color: #2c9c80;
+    color: white;
+    font-weight: bold;
+}
+.action-buttons button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
+/* Thông báo */
+.status-panel {
+    background-color: #ede9f9;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 900px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+#message-area {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+.message-info { color: #6161dc; }
+.message-success { color: green; }
+.message-error { color: red; }
+.message-warn { color: orange; }
+.message-win { color: darkgreen; }
+.message-lose { color: darkred; }
+
+.sunk-lists {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+    gap: 40px;
+    text-align: left;
+}
+.sunk-lists ul {
+    margin-top: 5px;
+    padding-left: 20px;
+}
+
+/* Footer */
+footer {
+    margin-top: 30px;
+    background-image: url('/image/battle.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 100%;
+}
