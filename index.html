@@ -1,61 +1,64 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battleship Game</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <title>BattleLine: Navy War</title>
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
-    <header>
-        <h1>Battleship Game</h1>
-    </header>
+  <header>
+    <h1>BattleLine: Navy War</h1>
+  </header>
 
-    <main>
-        <div class="game-container">
-            <div class="grid-container" id="player-grid-container">
-                <h2>Lưới của bạn</h2>
-                <div class="grid" id="player-grid">
-                    </div>
-                <div class="ship-placement-controls">
-                    <h3>Đặt tàu của bạn:</h3>
-                    <div class="ships-palette">
-                        <div class="ship-option" data-length="5" data-id="carrier" draggable="true">Tàu sân bay (5)</div>
-                        <div class="ship-option" data-length="4" data-id="battleship" draggable="true">Tàu chiến (4)</div>
-                        <div class="ship-option" data-length="3" data-id="cruiser" draggable="true">Tàu tuần dương (3)</div>
-                        <div class="ship-option" data-length="3" data-id="submarine" draggable="true">Tàu ngầm (3)</div>
-                        <div class="ship-option" data-length="2" data-id="destroyer" draggable="true">Tàu khu trục (2)</div>
-                    </div>
-                    <button id="rotate-ship-button">Xoay tàu (Ngang)</button>
-                    <button id="start-game-button" disabled>Bắt đầu chơi</button>
-                    <button id="reset-ships-button">Đặt lại tàu</button>
-                </div>
-            </div>
-
-            <div class="grid-container" id="opponent-grid-container">
-                <h2>Lưới đối thủ</h2>
-                <div class="grid" id="opponent-grid">
-                    </div>
-                 <p id="turn-indicator">Lượt của: Bạn</p>
-            </div>
+  <main>
+    <section class="game-board">
+      <div class="player-area">
+        <h2>Player's Board</h2>
+        <div id="player-grid" class="grid"></div>
+        <div class="controls">
+          <div class="ships-palette" id="ships-palette">
+            <button class="ship-option" data-length="5" data-id="carrier">Carrier (5)</button>
+            <button class="ship-option" data-length="4" data-id="battleship">Battleship (4)</button>
+            <button class="ship-option" data-length="3" data-id="cruiser">Cruiser (3)</button>
+            <button class="ship-option" data-length="3" data-id="submarine">Submarine (3)</button>
+            <button class="ship-option" data-length="2" data-id="destroyer">Destroyer (2)</button>
+          </div>
+          <div class="action-buttons">
+            <button id="rotate-ship-button">ROTATE (Horizontal)</button>
+            <button id="start-game-button" disabled>START</button>
+            <button id="reset-ships-button">RESET</button>
+          </div>
         </div>
+      </div>
 
-        <div class="game-info">
-            <h3>Thông tin trò chơi</h3>
-            <p id="message-area">Chào mừng đến với Battleship! Hãy đặt tàu của bạn.</p>
-            <div id="sunk-ships-info">
-                <h4>Tàu địch đã bị đánh chìm:</h4>
-                <ul id="opponent-sunk-list"></ul>
-                <h4>Tàu của bạn đã bị đánh chìm:</h4>
-                <ul id="player-sunk-list"></ul>
-            </div>
+      <div class="opponent-area">
+        <h2>Opponent's Board</h2>
+        <div id="opponent-grid" class="grid"></div>
+        <p id="turn-indicator">Turn: Yours</p>
+      </div>
+    </section>
+
+    <section class="status-panel">
+      <h3>Game's Information</h3>
+      <p id="message-area">Welcome to Battleship! Please select the ship and place on the board.</p>
+
+      <div class="sunk-lists">
+        <div>
+          <strong>Opponent's sunk ships:</strong>
+          <ul id="opponent-sunk-list"></ul>
         </div>
-    </main>
+        <div>
+          <strong>Player's sunk ships:</strong>
+          <ul id="player-sunk-list"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <footer>
-        <p>&copy; 2025 - Battleship Project</p>
-    </footer>
+  <footer>
+    <p>&copy; 2024.2025 - Battleship Project</p>
+  </footer>
 
-    <script type="module" src= "js/game/game.js"></script>
+  <script type="module" src="./js/game/game.js"></script>
 </body>
 </html>
