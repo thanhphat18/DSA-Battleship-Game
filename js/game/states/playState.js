@@ -13,8 +13,8 @@ export class PlayState {
     enter() {
         this.game.gameStarted = true;
         this.game.playerTurn = true;
-        this.game.updateMessage('Trò chơi bắt đầu! Lượt của bạn.');
-        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+        this.game.updateMessage('Game Start! Your turn.');
+        this.game.turnIndicator.textContent = "Turn: Player's";
         this.game.disableShipPlacementUI();
         this.setupOpponentShips();
         this.game.startGameButton.disabled = true;
@@ -56,23 +56,23 @@ export class PlayState {
         const result = this.processAttack(row, col, this.game.opponent.ships, this.game.opponentGridElement, 'opponent', this.opponentSunkList, this.game.opponent.ships);
 
         if (!result) {
-            this.game.updateMessage('Bạn đã chọn ô này rồi. Chọn ô khác.');
+            this.game.updateMessage('This cell has already been selected. Select another cell.');
             return;
         }
 
         if (result.hit) {
-            this.game.updateMessage('Bạn đã trúng tàu địch!');
+            this.game.updateMessage('You have hit the enemy ship!');
             if (this.game.opponent.allShipsSunk()) {
-                this.game.updateMessage('Bạn thắng rồi! 🎉');
+                this.game.updateMessage('You win! 🎉');
                 this.game.switchState('end');
                 return;
             }
         } else {
-            this.game.updateMessage('Bạn đã bắn trượt.');
+            this.game.updateMessage('You have missed.');
         }
 
         this.game.playerTurn = false;
-        this.game.turnIndicator.textContent = 'Lượt của: Đối thủ';
+        this.game.turnIndicator.textContent = 'Turn: Opponent (Computer)';
 
         setTimeout(() => this.opponentMove(), 1000);
     }
@@ -123,12 +123,12 @@ export class PlayState {
         const target = this.chooseTarget();
         if (!target) {
             this.game.playerTurn = true;
-            this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+            this.game.turnIndicator.textContent = "Turn: Player's";
             return;
         }
 
         const { row, col } = target;
-        this.game.updateMessage(`Máy bắn vào ô (${row}, ${col}) của bạn...`, 'ai-turn');
+        this.game.updateMessage(`Opponent (Computer) hits (${row}, ${col}) of yours...`, 'ai-turn');
 
         const result = this.processAttack(row, col, this.ships, this.grid, 'player', this.sunkList, this.shipConfigs);
         this.handleResult(row, col, result);
@@ -137,7 +137,7 @@ export class PlayState {
             this.endGame(false);
         } else {
             this.game.playerTurn = true;
-            this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+            this.game.turnIndicator.textContent = "Turn: Player's";
         }
     }
 
@@ -160,7 +160,7 @@ export class PlayState {
 
     handleResult(row, col, result) {
         if (result.hit) {
-            this.game.updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, 'ai-hit');
+            this.game.updateMessage(`Opponent (Computer) hits your ship at (${row}, ${col})!`, 'ai-hit');
             if (!this.lastHit) {
                 this.lastHit = { row, col };
                 this.triedDirections = [];
@@ -175,11 +175,11 @@ export class PlayState {
             }
 
             if (result.sunkShip) {
-                this.game.updateMessage(`Máy đã đánh chìm ${result.sunkShip.id} của bạn!`, 'ai-sunk');
+                this.game.updateMessage(`Opponent (Computer) sunk ${result.sunkShip.id} of yours!`, 'ai-sunk');
                 this.resetTargeting();
             }
         } else {
-            this.game.updateMessage(`Máy bắn trượt tại (${row}, ${col}).`, 'ai-miss');
+            this.game.updateMessage(`Opponent (Computer) misses at (${row}, ${col}).`, 'ai-miss');
             if (this.direction) {
                 this.direction = GridUtils.reverse(this.direction);
                 this.targetQueue = [GridUtils.nextInDirection(this.lastHit.row, this.lastHit.col, this.direction)];
@@ -214,6 +214,6 @@ export class PlayState {
 
     endGame(playerWon) {
         this.game.switchState('end');
-        this.game.updateMessage(playerWon ? 'Bạn thắng rồi! 🎉' : 'Bạn đã thua... 💥');
+        this.game.updateMessage(playerWon ? 'You win! 🎉' : 'You lose... 💥');
     }
 }

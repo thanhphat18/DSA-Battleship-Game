@@ -130,8 +130,8 @@ export class Game {
     this.playerTurn = true;
     this.isHorizontal = true;
 
-    this.rotateShipButton.textContent = 'Xoay tàu (Ngang)';
-    this.updateMessage('Chào mừng đến với Battleship! Hãy đặt tàu của bạn.');
+    this.rotateShipButton.textContent = 'ROTATE (Horizontal)';
+    this.updateMessage('Welcome to Battleship! Please place your ship.');
 
     this.shipsPalette.forEach(shipEl => {
       shipEl.style.opacity = 1;
