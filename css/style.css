@@ -74,14 +74,14 @@ main {
 /* Hiệu ứng game */
 .grid-cell.hit {
     background-color: #ff6347 !important; /* Tomato */
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="white">💥</text></svg>');
     background-size: 70%;
     background-repeat: no-repeat;
     background-position: center;
+    background-image: url('/image/explosion.png');
 }
 .grid-cell.miss {
-    background-color: lightblue;
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="black">🌊</text></svg>');
+    background-color: rgb(125, 182, 201);
+    background-image: url('/image/jellyfish.png');
     background-size: 70%;
     background-repeat: no-repeat;
     background-position: center;
@@ -90,7 +90,7 @@ main {
     background-color: rgb(8, 27, 112);
 }
 .grid-cell.sunk {  /* Đây đang bị lỗi hiển thị màu*/
-    background-color: darkred;
+    background-color: darkred  !important;
 }
 .grid-cell.placement-preview {
     background-color: rgba(0, 255, 0, 0.5);
@@ -183,4 +183,54 @@ footer {
     border-radius: 8px;
     font-size: 14px;
     width: 100%;
+}
+
+/* DARK MODE */
+body.dark {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark header {
+    background-color: #333;
+}
+
+body.dark .player-area, 
+body.dark .opponent-area,
+body.dark .status-panel {
+    background-color: #2a2a2a;
+    color: #fff;
+}
+
+body.dark .cell {
+    background-color: #444;
+    border: 1px solid #666;
+}
+
+body.dark .cell.hit {
+    background-color: #aa2e25 !important;
+}
+
+body.dark .cell.miss {
+    background-color: #377d9b !important;
+}
+
+body.dark .cell.ship {
+    background-color: #28417c;
+}
+
+body.dark .cell.sunk {
+    background-color: #610000;
+}
+
+body.dark .ship-option {
+    background-color: #555;
+}
+
+body.dark .action-buttons button {
+    background-color: #3e8e7e;
+}
+
+body.dark footer {
+    background-color: #222;
 }
