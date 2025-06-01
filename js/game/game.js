@@ -155,4 +155,11 @@ themeButton.addEventListener("click", () => {
   themeButton.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
 });
 
+  // Game cover
+  const cover = document.getElementById("game-cover");
+const startCoverBtn = document.getElementById("start-cover-btn");
+
+startCoverBtn.addEventListener("click", () => {
+  cover.style.display = "none"; // Ẩn màn cover
+});
 });

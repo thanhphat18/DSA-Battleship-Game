@@ -14,17 +14,18 @@ body {
 
 /* Header */
 header {
-    background-color: #227fcb;
+    background-color: #29a0cc;
     color: white;
     padding: 10px 20px;
     border: none;
-    border-radius: 8ps;
+    border-radius: 8px;
     text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 /* Layout chính */
 main {
-    background-image: url('/image/battle.jpg');
+    background-image: url('../image/cover.webp');
     background-size: cover;
     background-position: center;
     padding: 20px;
@@ -44,7 +45,7 @@ main {
 
 /* Player và Opponent */
 .player-area, .opponent-area {
-    background-color: #b9dff1;
+    background-color: #85d2ee;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -139,7 +140,7 @@ main {
 
 /* Thông báo */
 .status-panel {
-    background-color: #ede9f9;
+    background-color: #85d2ee;
     padding: 20px;
     border-radius: 12px;
     width: 90%;
@@ -173,7 +174,7 @@ main {
 /* Footer */
 footer {
     margin-top: 30px;
-    background-image: url('/image/battle.jpg');
+    background-image: url('../image/cover.webp');
     background-size: cover;
     background-position: center;
     color: white;
@@ -234,3 +235,49 @@ body.dark .action-buttons button {
 body.dark footer {
     background-color: #222;
 }
+
+/* Game Cover */
+#game-cover {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: linear-gradient(to bottom, #09203f, #537895);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  background-image: url('../image/cv.webp');
+  background-size: cover;
+}
+
+.cover-content {
+  text-align: center;
+  padding: 10px;
+}
+
+.cover-content h1 {
+  font-size: 150px;
+  font-style: italic;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  font-family: Georgia, serif;
+  margin-bottom: 10px;
+}
+
+#start-cover-btn {
+  padding: 12px 24px;
+  font-size: 50px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0c9080;
+  color: #f6f4f4;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: Georgia, serif;
+  transition: background-color 0.3s ease;
+}
+
+#start-cover-btn:hover {
+  background-color: #821416;
+}
+
