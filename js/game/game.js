@@ -15,6 +15,7 @@ export class Game {
     this.startGameButton = document.getElementById('start-game-button');
     this.resetShipsButton = document.getElementById('reset-ships-button');
     this.rotateShipButton = document.getElementById('rotate-ship-button');
+    this.undoButton = document.getElementById('undo-button');
     this.shipsPalette = document.querySelectorAll('.ship-option');
     this.gridSize = 10;
     this.sound = new SoundManager();
@@ -49,7 +50,7 @@ export class Game {
     this.currentState.enter();
   }
 
-  
+
 
   attachEventListeners() {
     this.shipsPalette.forEach(shipEl => {
@@ -70,6 +71,12 @@ export class Game {
       this.currentState.onResetButtonClick();
     });
 
+    this.undoButton.addEventListener('click', () => {
+      if (this.currentState.undoMove) {
+        this.currentState.undoMove();
+      }
+    });
+
     this.playerGridElement.addEventListener('click', e => {
       this.currentState.onPlayerGridClick(e);
     });
@@ -80,7 +87,7 @@ export class Game {
   }
 
   switchState(stateName) {
-    this.currentState.exit();
+    //this.currentState.exit();
     this.currentState = this.states[stateName];
     this.currentState.enter();
   }

@@ -3,10 +3,11 @@ import { GridUtils } from '/js/bot/gridUtils.js';
 export class PlayState {
     constructor(game) {
         this.game = game;
-        this.targetQueue = [];
+        this.targetQueue = []; //Queue
         this.lastHit = null;
         this.direction = null;
         this.triedDirections = [];
+        this.moveHistory = []; //Stack
     }
 
     enter() {
@@ -17,7 +18,7 @@ export class PlayState {
         this.game.disableShipPlacementUI();
         this.setupOpponentShips();
         this.game.startGameButton.disabled = true;
-        this.game.resetShipsButton.disabled = true;
+        this.game.resetShipsButton.disabled = false;
 
         this.grid = this.game.playerGridElement;
         this.ships = this.game.player.ships;
@@ -27,20 +28,22 @@ export class PlayState {
         this.opponentSunkList = document.getElementById('opponent-sunk-list');
     }
 
-    exit() {}
+    // exit() {
+    //     this.game.switchState('setup')
+    // }
 
-    onPlayerGridClick() {}
+    // onPlayerGridClick() {}
 
-    onRotateButtonClick() {}
+    // onRotateButtonClick() {}
 
-    onStartButtonClick() {}
+    // onStartButtonClick() {}
 
     onResetButtonClick() {
         this.game.resetGame();
         this.game.switchState('setup');
     }
 
-    onShipPaletteClick() {}
+    onShipPaletteClick() { }
 
     setupOpponentShips() {
         this.game.opponent.placeBotShips();
@@ -107,6 +110,7 @@ export class PlayState {
 
         let hitShip = false;
         let sunkShipInfo = null;
+        let affectedShip = null;
 
         for (const ship of targetShips) {
             if (ship.isSunk) continue;
@@ -117,6 +121,7 @@ export class PlayState {
                     ship.hit();
                     cell.classList.add('hit');
                     hitShip = true;
+                    affectedShip = ship;
 
                     if (ship.isSunk) {
                         this.game.sound.play('sunk');
@@ -139,15 +144,56 @@ export class PlayState {
             cell.classList.add('miss');
         }
 
+        this.moveHistory.push({
+            row,
+            col,
+            targetGridElement,
+            ship: affectedShip,
+        });
+
         return { hit: hitShip, sunkShip: sunkShipInfo };
+    }
+
+    undoMove() {
+        if (this.moveHistory.length < 2) {
+            this.game.updateMessage("Không thể hoàn tác lúc này.");
+            return;
+        }
+
+        const undoOne = (move) => {
+            const { row, col, targetGridElement, ship } = move;
+            const cell = targetGridElement.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
+            if (!cell) return;
+
+            // Remove visuals
+            cell.classList.remove('hit', 'miss', 'sunk');
+
+            // Restore ship logic if hit
+            if (ship) {
+                ship.hits = Math.max(0, ship.hits - 1);
+                ship.isSunk = false;
+                const pos = ship.positions.find(p => p.row === row && p.col === col);
+                if (pos) pos.hit = false;
+            }
+        };
+
+        // Undo AI's move (most recent)
+        undoOne(this.moveHistory.pop());
+
+        // Undo Player's move (second most recent)
+        undoOne(this.moveHistory.pop());
+
+        this.game.playerTurn = true;
+        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
     }
 
     chooseTarget() {
         while (this.targetQueue.length > 0) {
             const target = this.targetQueue.shift();
             if (!this.isAlreadyAttacked(target.row, target.col)) return target;
-        }
+        } //choose cell that not yet targetted
 
+        //If there's no targetted cell, randomly choose a cell
         let attempts = 0;
         while (attempts < this.gridSize * this.gridSize) {
             const row = Math.floor(Math.random() * this.gridSize);
@@ -163,16 +209,17 @@ export class PlayState {
         if (result.hit) {
             this.game.sound.play('fire');
             this.game.updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, 'ai-hit');
-            if (!this.lastHit) {
+            if (!this.lastHit) { //First hit case
                 this.lastHit = { row, col };
-                this.triedDirections = [];
+                this.triedDirections = []; 
                 this.addAdjacentTargets(row, col);
-            } else if (!this.direction) {
-                this.direction = GridUtils.getDirection(this.lastHit, { row, col });
+            } else if (!this.direction) { //Second hit case
+                //determine the direction of the boat
+                this.direction = GridUtils.getDirection(this.lastHit, { row, col }); 
                 if (this.direction) {
                     this.targetQueue = [GridUtils.nextInDirection(row, col, this.direction)];
                 }
-            } else {
+            } else { //Continuing hit of known direction
                 this.targetQueue.unshift(GridUtils.nextInDirection(row, col, this.direction));
             }
 
@@ -193,7 +240,7 @@ export class PlayState {
         }
     }
 
-    addAdjacentTargets(row, col) {
+    addAdjacentTargets(row, col) { //Add the adjacent target into targetQueue
         GridUtils.adjacentCells(row, col, this.gridSize).forEach(cell => {
             if (!this.isAlreadyAttacked(cell.row, cell.col)) this.targetQueue.push(cell);
         });

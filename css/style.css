@@ -90,7 +90,7 @@ main {
     background-color: rgb(8, 27, 112);
 }
 .grid-cell.sunk {  /* Đây đang bị lỗi hiển thị màu*/
-    background-color: darkred;
+    background-color: darkred !important;
 }
 .grid-cell.placement-preview {
     background-color: rgba(0, 255, 0, 0.5);

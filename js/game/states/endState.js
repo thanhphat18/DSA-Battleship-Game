@@ -10,21 +10,21 @@ export class EndState {
         this.game.resetShipsButton.disabled = false;
     }
 
-    exit() {
-        // nothing special here
-    }
+    // exit() {
+    //     // nothing special here
+    // }
 
-    onPlayerGridClick() {
-        // no actions allowed
-    }
+    // onPlayerGridClick() {
+    //     // no actions allowed
+    // }
 
-    onRotateButtonClick() {
-        // no actions allowed
-    }
+    // onRotateButtonClick() {
+    //     // no actions allowed
+    // }
 
-    onStartButtonClick() {
-        // no actions allowed
-    }
+    // onStartButtonClick() {
+    //     // no actions allowed
+    // }
 
     onResetButtonClick() {
         this.game.resetGame();

@@ -1,10 +1,10 @@
 export class GridUtils {
     static adjacentCells(row, col, size) {
         const cells = [];
-        if (row > 0) cells.push({ row: row - 1, col });
-        if (row < size - 1) cells.push({ row: row + 1, col });
-        if (col > 0) cells.push({ row, col: col - 1 });
-        if (col < size - 1) cells.push({ row, col: col + 1 });
+        if (row > 0) cells.push({ row: row - 1, col });//left
+        if (row < size - 1) cells.push({ row: row + 1, col });//right
+        if (col > 0) cells.push({ row, col: col - 1 });//up
+        if (col < size - 1) cells.push({ row, col: col + 1 });//down
         return cells;
     }
 
