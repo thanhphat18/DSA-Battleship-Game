@@ -14,7 +14,7 @@ export class PlayState {
         this.game.gameStarted = true;
         this.game.playerTurn = true;
         this.game.updateMessage('Game started! Your turn.');
-        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+        this.game.turnIndicator.textContent = 'Turn: Yours';
         this.game.disableShipPlacementUI();
         this.setupOpponentShips();
         this.game.startGameButton.disabled = true;
@@ -86,7 +86,7 @@ export class PlayState {
         const target = this.chooseTarget();
         if (!target) {
             this.game.playerTurn = true;
-            this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+            this.game.turnIndicator.textContent = 'Turn: Yours';
             return;
         }
 
@@ -100,7 +100,7 @@ export class PlayState {
             this.endGame(false);
         } else {
             this.game.playerTurn = true;
-            this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+            this.game.turnIndicator.textContent = 'Turn: Yours';
         }
     }
 
@@ -184,7 +184,7 @@ export class PlayState {
         undoOne(this.moveHistory.pop());
 
         this.game.playerTurn = true;
-        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+        this.game.turnIndicator.textContent = 'Turn: Yours';
     }
 
     chooseTarget() {
