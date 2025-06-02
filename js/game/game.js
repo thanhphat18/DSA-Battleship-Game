@@ -153,4 +153,21 @@ export class Game {
 
 document.addEventListener('DOMContentLoaded', () => {
   new Game();
+
+   // Dark Mode Toggle
+const themeButton = document.getElementById("toggle-theme");
+themeButton.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  const isDark = document.body.classList.contains("dark");
+  themeButton.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+});
+
+  // Game cover
+  const cover = document.getElementById("game-cover");
+const startCoverBtn = document.getElementById("start-cover-btn");
+
+startCoverBtn.addEventListener("click", () => {
+  cover.style.display = "none"; // Ẩn màn cover
+});
+
 });
