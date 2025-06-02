@@ -18,9 +18,41 @@ header {
     color: white;
     padding: 10px 20px;
     border: none;
-    border-radius: 8px;
     text-align: center;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    grid-column: 2;
+    justify-self: center;
+}
+
+#toggle-theme {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    padding: 5px 10px;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    justify-self: end;
+    margin-right: 10px;
+}
+
+#toggle-theme:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#toggle-theme:active {
+    transform: scale(0.9);
 }
 
 /* Layout chính */
@@ -51,6 +83,72 @@ main {
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     min-width: 300px;
     text-align: center;
+}
+
+/* Controls */
+.controls {
+    margin-top: 15px;
+}
+
+.ships-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.ship-option {
+    padding: 8px 12px;
+    background-color: #7e92a3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: grab;
+    user-select: none;
+}
+
+.ship-option.placed {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.ship-option:hover {
+    background-color: #6d7f8f;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.action-buttons button {
+    margin: 5px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background-color: #2c9c80;
+    color: white;
+    font-weight: bold;
+}
+
+.action-buttons button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Drag and drop feedback */
+.ship-option.dragging {
+    opacity: 0.7;
+    background-color: #6d7f8f;
+}
+
+.grid-cell.drop-target {
+    background-color: rgba(0, 255, 0, 0.3) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 }
 
 /* Bảng */

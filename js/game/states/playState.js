@@ -13,8 +13,8 @@ export class PlayState {
     enter() {
         this.game.gameStarted = true;
         this.game.playerTurn = true;
-        this.game.updateMessage('Trò chơi bắt đầu! Lượt của bạn.');
-        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+        this.game.updateMessage('Game started! Your turn.');
+        this.game.turnIndicator.textContent = 'Turn: Yours';
         this.game.disableShipPlacementUI();
         this.setupOpponentShips();
         this.game.startGameButton.disabled = true;
@@ -58,24 +58,24 @@ export class PlayState {
         const result = this.processAttack(row, col, this.game.opponent.ships, this.game.opponentGridElement, 'opponent', this.opponentSunkList, this.game.opponent.ships);
 
         if (!result) {
-            this.game.updateMessage('Bạn đã chọn ô này rồi. Chọn ô khác.');
+            this.game.updateMessage('You have already selected this cell. Choose another one.');
             return;
         }
 
         if (result.hit) {
             this.game.sound.play('fire');
-            this.game.updateMessage('Bạn đã trúng tàu địch!');
+            this.game.updateMessage('You hit an enemy ship!');
             if (this.game.opponent.allShipsSunk()) {
-                this.game.updateMessage('Bạn thắng rồi! 🎉');
+                this.game.updateMessage('You won! 🎉');
                 this.game.switchState('end');
                 return;
             }
         } else {
-            this.game.updateMessage('Bạn đã bắn trượt.');
+            this.game.updateMessage('You missed.');
         }
 
         this.game.playerTurn = false;
-        this.game.turnIndicator.textContent = 'Lượt của: Đối thủ';
+        this.game.turnIndicator.textContent = 'Turn: Opponent';
 
         setTimeout(() => this.opponentMove(), 1000);
     }
@@ -86,12 +86,12 @@ export class PlayState {
         const target = this.chooseTarget();
         if (!target) {
             this.game.playerTurn = true;
-            this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+            this.game.turnIndicator.textContent = 'Turn: Yours';
             return;
         }
 
         const { row, col } = target;
-        this.game.updateMessage(`Máy bắn vào ô (${row}, ${col}) của bạn...`, 'ai-turn');
+        this.game.updateMessage(`AI is shooting at your cell (${row}, ${col})...`, 'ai-turn');
 
         const result = this.processAttack(row, col, this.ships, this.grid, 'player', this.sunkList, this.shipConfigs);
         this.handleResult(row, col, result);
@@ -100,7 +100,7 @@ export class PlayState {
             this.endGame(false);
         } else {
             this.game.playerTurn = true;
-            this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+            this.game.turnIndicator.textContent = 'Turn: Yours';
         }
     }
 
@@ -156,7 +156,7 @@ export class PlayState {
 
     undoMove() {
         if (this.moveHistory.length < 2) {
-            this.game.updateMessage("Không thể hoàn tác lúc này.");
+            this.game.updateMessage("Cannot undo now.");
             return;
         }
 
@@ -184,7 +184,7 @@ export class PlayState {
         undoOne(this.moveHistory.pop());
 
         this.game.playerTurn = true;
-        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+        this.game.turnIndicator.textContent = 'Turn: Yours';
     }
 
     chooseTarget() {
@@ -208,7 +208,7 @@ export class PlayState {
     handleResult(row, col, result) {
         if (result.hit) {
             this.game.sound.play('fire');
-            this.game.updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, 'ai-hit');
+            this.game.updateMessage(`AI hit your ship at (${row}, ${col})!`, 'ai-hit');
             if (!this.lastHit) { //First hit case
                 this.lastHit = { row, col };
                 this.triedDirections = []; 
@@ -225,11 +225,11 @@ export class PlayState {
 
             if (result.sunkShip) {
                 this.game.sound.play('sunk');
-                this.game.updateMessage(`Máy đã đánh chìm ${result.sunkShip.id} của bạn!`, 'ai-sunk');
+                this.game.updateMessage(`AI sank your ${result.sunkShip.id}!`, 'ai-sunk');
                 this.resetTargeting();
             }
         } else {
-            this.game.updateMessage(`Máy bắn trượt tại (${row}, ${col}).`, 'ai-miss');
+            this.game.updateMessage(`AI missed at (${row}, ${col}).`, 'ai-miss');
             if (this.direction) {
                 this.direction = GridUtils.reverse(this.direction);
                 this.targetQueue = [GridUtils.nextInDirection(this.lastHit.row, this.lastHit.col, this.direction)];
@@ -264,6 +264,6 @@ export class PlayState {
 
     endGame(playerWon) {
         this.game.switchState('end');
-        this.game.updateMessage(playerWon ? 'Bạn thắng rồi! 🎉' : 'Bạn đã thua... 💥');
+        this.game.updateMessage(playerWon ? 'You won! 🎉' : 'You lost... 💥');
     }
 }

@@ -4,12 +4,12 @@ export class SetupState {
     }
 
     enter() {
-        this.game.updateMessage('Chào mừng đến với Battleship! Hãy đặt tàu của bạn.');
+        this.game.updateMessage('Welcome to Battleship! Place your ships.');
         this.game.updateStartButtonState();
         this.game.enableShipPlacementUI();
         this.game.selectedShipId = null;
         this.game.isHorizontal = true;
-        this.game.rotateShipButton.textContent = 'Xoay tàu (Ngang)';
+        this.game.rotateShipButton.textContent = 'Rotate Ship (Horizontal)';
     }
 
     exit() {
@@ -26,22 +26,22 @@ export class SetupState {
             this.game.markShipSelectedPlaced(this.game.selectedShipId);
             this.game.selectedShipId = null;
             this.game.updateStartButtonState();
-            this.game.updateMessage('Đặt tàu thành công. Chọn tàu khác hoặc bắt đầu chơi.');
+            this.game.updateMessage('Ship placed successfully. Select another ship or start the game.');
         } else {
-            this.game.updateMessage('Vị trí đặt tàu không hợp lệ.');
+            this.game.updateMessage('Invalid ship placement position.');
         }
     }
 
     onRotateButtonClick() {
         this.game.isHorizontal = !this.game.isHorizontal;
-        this.game.rotateShipButton.textContent = `Xoay tàu (${this.game.isHorizontal ? 'Ngang' : 'Dọc'})`;
+        this.game.rotateShipButton.textContent = `Rotate Ship (${this.game.isHorizontal ? 'Horizontal' : 'Vertical'})`;
     }
 
     onStartButtonClick() {
         if (this.game.player.ships.every(s => s.positions.length > 0)) {
             this.game.switchState('play');
         } else {
-            this.game.updateMessage('Vui lòng đặt tất cả tàu trước khi bắt đầu.');
+            this.game.updateMessage('Please place all ships before starting.');
         }
     }
 
@@ -51,11 +51,11 @@ export class SetupState {
 
     onShipPaletteClick(shipId) {
         if (this.game.player.ships.find(s => s.id === shipId && s.positions.length > 0)) {
-            this.game.updateMessage('Tàu này đã được đặt.');
+            this.game.updateMessage('This ship has already been placed.');
             return;
         }
         this.game.selectedShipId = shipId;
-        this.game.updateMessage(`Chọn vị trí để đặt tàu: ${shipId}`);
+        this.game.updateMessage(`Select position to place ship: ${shipId}`);
     }
 
     onOpponentGridClick() {

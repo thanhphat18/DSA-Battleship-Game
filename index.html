@@ -16,7 +16,7 @@
 
   <header>
     <h1>BattleLine: Navy War</h1>
-    <button id="toggle-theme">🌙 Dark Mode </button>
+    <button id="toggle-theme" aria-label="Toggle dark mode">🌙 Dark Mode</button>
   </header>
 
 
@@ -27,11 +27,26 @@
         <div id="player-grid" class="grid"></div>
         <div class="controls">
           <div class="ships-palette" id="ships-palette">
-            <button class="ship-option" data-length="5" data-id="carrier">Carrier (5)</button>
-            <button class="ship-option" data-length="4" data-id="battleship">Battleship (4)</button>
-            <button class="ship-option" data-length="3" data-id="cruiser">Cruiser (3)</button>
-            <button class="ship-option" data-length="3" data-id="submarine">Submarine (3)</button>
-            <button class="ship-option" data-length="2" data-id="destroyer">Destroyer (2)</button>
+            <div class="ship-option" draggable="true" data-length="5" data-id="carrier">
+              <span>Carrier (5)</span>
+              <div class="ship-preview" data-length="5"></div>
+            </div>
+            <div class="ship-option" draggable="true" data-length="4" data-id="battleship">
+              <span>Battleship (4)</span>
+              <div class="ship-preview" data-length="4"></div>
+            </div>
+            <div class="ship-option" draggable="true" data-length="3" data-id="cruiser">
+              <span>Cruiser (3)</span>
+              <div class="ship-preview" data-length="3"></div>
+            </div>
+            <div class="ship-option" draggable="true" data-length="3" data-id="submarine">
+              <span>Submarine (3)</span>
+              <div class="ship-preview" data-length="3"></div>
+            </div>
+            <div class="ship-option" draggable="true" data-length="2" data-id="destroyer">
+              <span>Destroyer (2)</span>
+              <div class="ship-preview" data-length="2"></div>
+            </div>
           </div>
           <div class="action-buttons">
             <button id="rotate-ship-button">ROTATE (Horizontal)</button>
