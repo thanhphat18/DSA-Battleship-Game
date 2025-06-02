@@ -154,7 +154,7 @@ export class Game {
 document.addEventListener('DOMContentLoaded', () => {
   new Game();
 
-   // Dark Mode Toggle
+  // Dark Mode Toggle
 const themeButton = document.getElementById("toggle-theme");
 themeButton.addEventListener("click", () => {
   document.body.classList.toggle("dark");
@@ -169,5 +169,4 @@ const startCoverBtn = document.getElementById("start-cover-btn");
 startCoverBtn.addEventListener("click", () => {
   cover.style.display = "none"; // Ẩn màn cover
 });
-
 });
