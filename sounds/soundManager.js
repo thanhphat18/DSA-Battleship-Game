@@ -1,8 +1,8 @@
 export class SoundManager{
     constructor() {
         this.sounds = {
-            fire: new Audio('/sounds/fire.mp3'),
-            sunk: new Audio('/sounds/sunk.mp3')
+            fire: new Audio('/sounds/soundStore/fire.mp3'),
+            sunk: new Audio('/sounds/soundStore/sunk.mp3')
         };
     }
 

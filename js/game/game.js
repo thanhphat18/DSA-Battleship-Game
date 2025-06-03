@@ -153,7 +153,7 @@ export class Game {
     
     // Highlight valid drop targets
     const ship = this.player.ships.find(s => s.id === this.selectedShipId);
-    if (ship && this.player.canPlaceShip(this.selectedShipId, row, col, this.isHorizontal)) {
+    if (ship) {
       cell.classList.add('drop-target');
       // Highlight all cells that would be occupied by the ship
       this.highlightShipPlacement(row, col, this.selectedShipId, true);

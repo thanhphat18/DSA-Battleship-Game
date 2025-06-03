@@ -1,20 +1,17 @@
-import { GridUtils } from '/js/bot/gridUtils.js';
+import { AIController } from '/js/bot/AIController.js'; 
 
 export class PlayState {
     constructor(game) {
         this.game = game;
-        this.targetQueue = []; //Queue
-        this.lastHit = null;
-        this.direction = null;
-        this.triedDirections = [];
         this.moveHistory = []; //Stack
+        this.aiController = new AIController(game);
     }
 
     enter() {
         this.game.gameStarted = true;
         this.game.playerTurn = true;
-        this.game.updateMessage('Game started! Your turn.');
-        this.game.turnIndicator.textContent = 'Turn: Yours';
+        this.game.updateMessage('Trò chơi bắt đầu! Lượt của bạn.');
+        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
         this.game.disableShipPlacementUI();
         this.setupOpponentShips();
         this.game.startGameButton.disabled = true;
@@ -50,7 +47,7 @@ export class PlayState {
     }
 
     onOpponentGridClick(e) {
-        if (!this.game.playerTurn || !e.target.classList.contains('grid-cell')) return;
+        if (!this.game.playerTurn) return;
 
         const row = parseInt(e.target.dataset.row);
         const col = parseInt(e.target.dataset.col);
@@ -58,24 +55,24 @@ export class PlayState {
         const result = this.processAttack(row, col, this.game.opponent.ships, this.game.opponentGridElement, 'opponent', this.opponentSunkList, this.game.opponent.ships);
 
         if (!result) {
-            this.game.updateMessage('You have already selected this cell. Choose another one.');
+            this.game.updateMessage('Bạn đã chọn ô này rồi. Chọn ô khác.');
             return;
         }
 
         if (result.hit) {
             this.game.sound.play('fire');
-            this.game.updateMessage('You hit an enemy ship!');
+            this.game.updateMessage('Bạn đã trúng tàu địch!');
             if (this.game.opponent.allShipsSunk()) {
-                this.game.updateMessage('You won! 🎉');
+                this.game.updateMessage('Bạn thắng rồi! 🎉');
                 this.game.switchState('end');
                 return;
             }
         } else {
-            this.game.updateMessage('You missed.');
+            this.game.updateMessage('Bạn đã bắn trượt.');
         }
 
         this.game.playerTurn = false;
-        this.game.turnIndicator.textContent = 'Turn: Opponent';
+        this.game.turnIndicator.textContent = 'Lượt của: Đối thủ';
 
         setTimeout(() => this.opponentMove(), 1000);
     }
@@ -83,24 +80,24 @@ export class PlayState {
     opponentMove() {
         if (this.game.playerTurn) return;
 
-        const target = this.chooseTarget();
+        const target = this.aiController.chooseTarget();
         if (!target) {
             this.game.playerTurn = true;
-            this.game.turnIndicator.textContent = 'Turn: Yours';
+            this.game.turnIndicator.textContent = 'Lượt của: Bạn';
             return;
         }
 
         const { row, col } = target;
-        this.game.updateMessage(`AI is shooting at your cell (${row}, ${col})...`, 'ai-turn');
+        this.game.updateMessage(`Máy bắn vào ô (${row}, ${col}) của bạn...`, 'ai-turn');
 
         const result = this.processAttack(row, col, this.ships, this.grid, 'player', this.sunkList, this.shipConfigs);
-        this.handleResult(row, col, result);
+        this.aiController.handleResult(row, col, result);
 
         if (this.checkWin(this.ships)) {
             this.endGame(false);
         } else {
             this.game.playerTurn = true;
-            this.game.turnIndicator.textContent = 'Turn: Yours';
+            this.game.turnIndicator.textContent = 'Lượt của: Bạn';
         }
     }
 
@@ -148,6 +145,7 @@ export class PlayState {
             row,
             col,
             targetGridElement,
+            targetOwner,
             ship: affectedShip,
         });
 
@@ -156,12 +154,15 @@ export class PlayState {
 
     undoMove() {
         if (this.moveHistory.length < 2) {
-            this.game.updateMessage("Cannot undo now.");
+            this.game.updateMessage("Không thể hoàn tác lúc này.");
             return;
         }
 
         const undoOne = (move) => {
-            const { row, col, targetGridElement, ship } = move;
+            const { row, col, targetGridElement, targetOwner, ship } = move;
+            if (targetOwner == 'player'){
+                this.aiController.undoTarget(row, col);
+            }
             const cell = targetGridElement.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
             if (!cell) return;
 
@@ -184,78 +185,7 @@ export class PlayState {
         undoOne(this.moveHistory.pop());
 
         this.game.playerTurn = true;
-        this.game.turnIndicator.textContent = 'Turn: Yours';
-    }
-
-    chooseTarget() {
-        while (this.targetQueue.length > 0) {
-            const target = this.targetQueue.shift();
-            if (!this.isAlreadyAttacked(target.row, target.col)) return target;
-        } //choose cell that not yet targetted
-
-        //If there's no targetted cell, randomly choose a cell
-        let attempts = 0;
-        while (attempts < this.gridSize * this.gridSize) {
-            const row = Math.floor(Math.random() * this.gridSize);
-            const col = Math.floor(Math.random() * this.gridSize);
-            if (!this.isAlreadyAttacked(row, col)) return { row, col };
-            attempts++;
-        }
-
-        return null;
-    }
-
-    handleResult(row, col, result) {
-        if (result.hit) {
-            this.game.sound.play('fire');
-            this.game.updateMessage(`AI hit your ship at (${row}, ${col})!`, 'ai-hit');
-            if (!this.lastHit) { //First hit case
-                this.lastHit = { row, col };
-                this.triedDirections = []; 
-                this.addAdjacentTargets(row, col);
-            } else if (!this.direction) { //Second hit case
-                //determine the direction of the boat
-                this.direction = GridUtils.getDirection(this.lastHit, { row, col }); 
-                if (this.direction) {
-                    this.targetQueue = [GridUtils.nextInDirection(row, col, this.direction)];
-                }
-            } else { //Continuing hit of known direction
-                this.targetQueue.unshift(GridUtils.nextInDirection(row, col, this.direction));
-            }
-
-            if (result.sunkShip) {
-                this.game.sound.play('sunk');
-                this.game.updateMessage(`AI sank your ${result.sunkShip.id}!`, 'ai-sunk');
-                this.resetTargeting();
-            }
-        } else {
-            this.game.updateMessage(`AI missed at (${row}, ${col}).`, 'ai-miss');
-            if (this.direction) {
-                this.direction = GridUtils.reverse(this.direction);
-                this.targetQueue = [GridUtils.nextInDirection(this.lastHit.row, this.lastHit.col, this.direction)];
-            } else if (this.lastHit) {
-                this.triedDirections.push({ row, col });
-                this.addAdjacentTargets(this.lastHit.row, this.lastHit.col);
-            }
-        }
-    }
-
-    addAdjacentTargets(row, col) { //Add the adjacent target into targetQueue
-        GridUtils.adjacentCells(row, col, this.gridSize).forEach(cell => {
-            if (!this.isAlreadyAttacked(cell.row, cell.col)) this.targetQueue.push(cell);
-        });
-    }
-
-    isAlreadyAttacked(row, col) {
-        const cell = this.grid.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
-        return cell.classList.contains('hit') || cell.classList.contains('miss');
-    }
-
-    resetTargeting() {
-        this.lastHit = null;
-        this.direction = null;
-        this.targetQueue = [];
-        this.triedDirections = [];
+        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
     }
 
     checkWin(ships) {
@@ -264,6 +194,6 @@ export class PlayState {
 
     endGame(playerWon) {
         this.game.switchState('end');
-        this.game.updateMessage(playerWon ? 'You won! 🎉' : 'You lost... 💥');
+        this.game.updateMessage(playerWon ? 'Bạn thắng rồi! 🎉' : 'Bạn đã thua... 💥');
     }
 }
