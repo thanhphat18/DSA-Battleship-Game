@@ -14,17 +14,50 @@ body {
 
 /* Header */
 header {
-    background-color: #227fcb;
+    background-color: #29a0cc;
     color: white;
     padding: 10px 20px;
     border: none;
-    border-radius: 8ps;
     text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    grid-column: 2;
+    justify-self: center;
+}
+
+#toggle-theme {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    padding: 5px 10px;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    justify-self: end;
+    margin-right: 10px;
+}
+
+#toggle-theme:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#toggle-theme:active {
+    transform: scale(0.9);
 }
 
 /* Layout chính */
 main {
-    background-image: url('/image/battle.jpg');
+    background-image: url('../image/cover.webp');
     background-size: cover;
     background-position: center;
     padding: 20px;
@@ -44,12 +77,78 @@ main {
 
 /* Player và Opponent */
 .player-area, .opponent-area {
-    background-color: #b9dff1;
+    background-color: #85d2ee;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     min-width: 300px;
     text-align: center;
+}
+
+/* Controls */
+.controls {
+    margin-top: 15px;
+}
+
+.ships-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.ship-option {
+    padding: 8px 12px;
+    background-color: #7e92a3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: grab;
+    user-select: none;
+}
+
+.ship-option.placed {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.ship-option:hover {
+    background-color: #6d7f8f;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.action-buttons button {
+    margin: 5px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background-color: #2c9c80;
+    color: white;
+    font-weight: bold;
+}
+
+.action-buttons button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Drag and drop feedback */
+.ship-option.dragging {
+    opacity: 0.7;
+    background-color: #6d7f8f;
+}
+
+.grid-cell.drop-target {
+    background-color: rgba(0, 255, 0, 0.3) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 }
 
 /* Bảng */
@@ -74,14 +173,14 @@ main {
 /* Hiệu ứng game */
 .grid-cell.hit {
     background-color: #ff6347 !important; /* Tomato */
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="white">💥</text></svg>');
     background-size: 70%;
     background-repeat: no-repeat;
     background-position: center;
+    background-image: url('/image/explosion.png');
 }
 .grid-cell.miss {
-    background-color: lightblue;
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="80" fill="black">🌊</text></svg>');
+    background-color: rgb(125, 182, 201);
+    background-image: url('/image/jellyfish.png');
     background-size: 70%;
     background-repeat: no-repeat;
     background-position: center;
@@ -90,7 +189,7 @@ main {
     background-color: rgb(8, 27, 112);
 }
 .grid-cell.sunk {  /* Đây đang bị lỗi hiển thị màu*/
-    background-color: darkred !important;
+    background-color: darkred  !important;
 }
 .grid-cell.placement-preview {
     background-color: rgba(0, 255, 0, 0.5);
@@ -139,7 +238,7 @@ main {
 
 /* Thông báo */
 .status-panel {
-    background-color: #ede9f9;
+    background-color: #85d2ee;
     padding: 20px;
     border-radius: 12px;
     width: 90%;
@@ -173,7 +272,7 @@ main {
 /* Footer */
 footer {
     margin-top: 30px;
-    background-image: url('/image/battle.jpg');
+    background-image: url('../image/cover.webp');
     background-size: cover;
     background-position: center;
     color: white;
@@ -183,4 +282,99 @@ footer {
     border-radius: 8px;
     font-size: 14px;
     width: 100%;
+}
+
+/* DARK MODE */
+body.dark {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark header {
+    background-color: #333;
+}
+
+body.dark .player-area, 
+body.dark .opponent-area,
+body.dark .status-panel {
+    background-color: #2a2a2a;
+    color: #fff;
+}
+
+body.dark .cell {
+    background-color: #444;
+    border: 1px solid #666;
+}
+
+body.dark .cell.hit {
+    background-color: #aa2e25 !important;
+}
+
+body.dark .cell.miss {
+    background-color: #377d9b !important;
+}
+
+body.dark .cell.ship {
+    background-color: #28417c;
+}
+
+body.dark .cell.sunk {
+    background-color: #610000;
+}
+
+body.dark .ship-option {
+    background-color: #555;
+}
+
+body.dark .action-buttons button {
+    background-color: #3e8e7e;
+}
+
+body.dark footer {
+    background-color: #222;
+}
+
+/* Game Cover */
+#game-cover {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: linear-gradient(to bottom, #09203f, #537895);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  background-image: url('../image/cv.webp');
+  background-size: cover;
+}
+
+.cover-content {
+  text-align: center;
+  padding: 10px;
+}
+
+.cover-content h1 {
+  font-size: 150px;
+  font-style: italic;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  font-family: Georgia, serif;
+  margin-bottom: 10px;
+}
+
+#start-cover-btn {
+  padding: 12px 24px;
+  font-size: 50px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0c9080;
+  color: #f6f4f4;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: Georgia, serif;
+  transition: background-color 0.3s ease;
+}
+
+#start-cover-btn:hover {
+  background-color: #821416;
 }

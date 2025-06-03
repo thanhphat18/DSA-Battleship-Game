@@ -53,11 +53,25 @@ export class Game {
 
 
   attachEventListeners() {
+    // Click handler for ship selection
     this.shipsPalette.forEach(shipEl => {
-      shipEl.addEventListener('click', () => {
-        this.currentState.onShipPaletteClick(shipEl.dataset.id);
+      shipEl.addEventListener('click', (e) => {
+        // Only handle click if not coming from a drag operation
+        if (!e.target.closest('.ship-preview')) {
+          this.currentState.onShipPaletteClick(shipEl.dataset.id);
+        }
       });
+
+      // Drag and drop handlers
+      shipEl.addEventListener('dragstart', this.handleDragStart.bind(this));
+      shipEl.addEventListener('dragend', this.handleDragEnd.bind(this));
     });
+
+    // Grid drop handlers
+    this.playerGridElement.addEventListener('dragover', this.handleDragOver.bind(this));
+    this.playerGridElement.addEventListener('dragleave', this.handleDragLeave.bind(this));
+    this.playerGridElement.addEventListener('drop', this.handleDrop.bind(this));
+    this.playerGridElement.addEventListener('dragend', this.handleDragEnd.bind(this));
 
     this.rotateShipButton.addEventListener('click', () => {
       this.currentState.onRotateButtonClick();
@@ -92,11 +106,127 @@ export class Game {
     this.currentState.enter();
   }
 
+  handleDragStart(e) {
+    if (!this.currentState.onShipPaletteClick) return;
+    
+    const shipEl = e.target.closest('.ship-option');
+    if (!shipEl) return;
+    
+    const shipId = shipEl.dataset.id;
+    const ship = this.player.ships.find(s => s.id === shipId);
+    
+    if (ship && ship.positions.length > 0) {
+      e.preventDefault();
+      return;
+    }
+    
+    this.selectedShipId = shipId;
+    shipEl.classList.add('dragging');
+    
+    // Set drag image to a small preview
+    const dragImage = document.createElement('div');
+    dragImage.style.width = '20px';
+    dragImage.style.height = '20px';
+    dragImage.style.background = '#1a365d';
+    dragImage.style.position = 'absolute';
+    dragImage.style.top = '-9999px';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 10, 10);
+    
+    // Store ship data for drop handling
+    e.dataTransfer.setData('text/plain', JSON.stringify({
+      shipId: shipId,
+      length: parseInt(shipEl.dataset.length)
+    }));
+    
+    // Clean up
+    setTimeout(() => document.body.removeChild(dragImage), 0);
+  }
+  
+  handleDragOver(e) {
+    e.preventDefault();
+    const cell = e.target.closest('.grid-cell');
+    if (!cell || !this.selectedShipId) return;
+    
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    
+    // Highlight valid drop targets
+    const ship = this.player.ships.find(s => s.id === this.selectedShipId);
+    if (ship) {
+      cell.classList.add('drop-target');
+      // Highlight all cells that would be occupied by the ship
+      this.highlightShipPlacement(row, col, this.selectedShipId, true);
+    } else {
+      cell.classList.add('invalid-drop');
+    }
+  }
+  
+  handleDragLeave(e) {
+    const cell = e.target.closest('.grid-cell');
+    if (cell) {
+      cell.classList.remove('drop-target', 'invalid-drop');
+      this.clearPlacementHighlights();
+    }
+  }
+  
+  handleDrop(e) {
+    e.preventDefault();
+    const cell = e.target.closest('.grid-cell');
+    if (!cell || !this.selectedShipId) return;
+    
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    
+    // Clear any highlighting
+    this.clearPlacementHighlights();
+    
+    // Place the ship
+    this.currentState.onPlayerGridClick({
+      target: cell,
+      preventDefault: () => {}
+    });
+  }
+  
+  handleDragEnd() {
+    // Clear any highlighting
+    this.clearPlacementHighlights();
+    // Remove dragging class from all ship options
+    this.shipsPalette.forEach(el => el.classList.remove('dragging'));
+  }
+  
+  highlightShipPlacement(row, col, shipId, isValid) {
+    const ship = this.player.ships.find(s => s.id === shipId);
+    if (!ship) return;
+    
+    const length = ship.size;
+    const cells = [];
+    
+    for (let i = 0; i < length; i++) {
+      const r = this.isHorizontal ? row : row + i;
+      const c = this.isHorizontal ? col + i : col;
+      const cell = this.playerGridElement.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+      if (cell) {
+        cells.push(cell);
+        cell.classList.add(isValid ? 'placement-preview' : 'invalid-placement');
+      }
+    }
+    
+    return cells;
+  }
+  
+  clearPlacementHighlights() {
+    // Clear all placement preview highlights
+    const cells = this.playerGridElement.querySelectorAll('.grid-cell');
+    cells.forEach(cell => {
+      cell.classList.remove('drop-target', 'invalid-drop', 'placement-preview', 'invalid-placement');
+    });
+  }
+  
   markShipSelectedPlaced(shipId) {
     this.shipsPalette.forEach(shipEl => {
       if (shipEl.dataset.id === shipId) {
-        shipEl.style.opacity = 0.5;
-        shipEl.style.pointerEvents = 'none';
+        shipEl.classList.add('placed');
       }
     });
   }
@@ -136,9 +266,14 @@ export class Game {
     this.gameStarted = false;
     this.playerTurn = true;
     this.isHorizontal = true;
+    
+    // Reset ship palette UI
+    this.shipsPalette.forEach(shipEl => {
+      shipEl.classList.remove('placed');
+    });
 
-    this.rotateShipButton.textContent = 'Xoay tàu (Ngang)';
-    this.updateMessage('Chào mừng đến với Battleship! Hãy đặt tàu của bạn.');
+    this.rotateShipButton.textContent = 'Rotate Ship (Horizontal)';
+    this.updateMessage('Welcome to Battleship! Place your ships.');
 
     this.shipsPalette.forEach(shipEl => {
       shipEl.style.opacity = 1;
@@ -153,4 +288,20 @@ export class Game {
 
 document.addEventListener('DOMContentLoaded', () => {
   new Game();
+
+  // Dark Mode Toggle
+const themeButton = document.getElementById("toggle-theme");
+themeButton.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  const isDark = document.body.classList.contains("dark");
+  themeButton.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+});
+
+  // Game cover
+  const cover = document.getElementById("game-cover");
+const startCoverBtn = document.getElementById("start-cover-btn");
+
+startCoverBtn.addEventListener("click", () => {
+  cover.style.display = "none"; // Ẩn màn cover
+});
 });

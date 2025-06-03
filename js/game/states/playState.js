@@ -1,13 +1,10 @@
-import { GridUtils } from '/js/bot/gridUtils.js';
+import { AIController } from '/js/bot/AIController.js'; 
 
 export class PlayState {
     constructor(game) {
         this.game = game;
-        this.targetQueue = []; //Queue
-        this.lastHit = null;
-        this.direction = null;
-        this.triedDirections = [];
         this.moveHistory = []; //Stack
+        this.aiController = new AIController(game);
     }
 
     enter() {
@@ -50,7 +47,7 @@ export class PlayState {
     }
 
     onOpponentGridClick(e) {
-        if (!this.game.playerTurn || !e.target.classList.contains('grid-cell')) return;
+        if (!this.game.playerTurn) return;
 
         const row = parseInt(e.target.dataset.row);
         const col = parseInt(e.target.dataset.col);
@@ -83,7 +80,7 @@ export class PlayState {
     opponentMove() {
         if (this.game.playerTurn) return;
 
-        const target = this.chooseTarget();
+        const target = this.aiController.chooseTarget();
         if (!target) {
             this.game.playerTurn = true;
             this.game.turnIndicator.textContent = 'Lượt của: Bạn';
@@ -94,7 +91,7 @@ export class PlayState {
         this.game.updateMessage(`Máy bắn vào ô (${row}, ${col}) của bạn...`, 'ai-turn');
 
         const result = this.processAttack(row, col, this.ships, this.grid, 'player', this.sunkList, this.shipConfigs);
-        this.handleResult(row, col, result);
+        this.aiController.handleResult(row, col, result);
 
         if (this.checkWin(this.ships)) {
             this.endGame(false);
@@ -148,6 +145,7 @@ export class PlayState {
             row,
             col,
             targetGridElement,
+            targetOwner,
             ship: affectedShip,
         });
 
@@ -161,7 +159,10 @@ export class PlayState {
         }
 
         const undoOne = (move) => {
-            const { row, col, targetGridElement, ship } = move;
+            const { row, col, targetGridElement, targetOwner, ship } = move;
+            if (targetOwner == 'player'){
+                this.aiController.undoTarget(row, col);
+            }
             const cell = targetGridElement.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
             if (!cell) return;
 
@@ -185,77 +186,6 @@ export class PlayState {
 
         this.game.playerTurn = true;
         this.game.turnIndicator.textContent = 'Lượt của: Bạn';
-    }
-
-    chooseTarget() {
-        while (this.targetQueue.length > 0) {
-            const target = this.targetQueue.shift();
-            if (!this.isAlreadyAttacked(target.row, target.col)) return target;
-        } //choose cell that not yet targetted
-
-        //If there's no targetted cell, randomly choose a cell
-        let attempts = 0;
-        while (attempts < this.gridSize * this.gridSize) {
-            const row = Math.floor(Math.random() * this.gridSize);
-            const col = Math.floor(Math.random() * this.gridSize);
-            if (!this.isAlreadyAttacked(row, col)) return { row, col };
-            attempts++;
-        }
-
-        return null;
-    }
-
-    handleResult(row, col, result) {
-        if (result.hit) {
-            this.game.sound.play('fire');
-            this.game.updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, 'ai-hit');
-            if (!this.lastHit) { //First hit case
-                this.lastHit = { row, col };
-                this.triedDirections = []; 
-                this.addAdjacentTargets(row, col);
-            } else if (!this.direction) { //Second hit case
-                //determine the direction of the boat
-                this.direction = GridUtils.getDirection(this.lastHit, { row, col }); 
-                if (this.direction) {
-                    this.targetQueue = [GridUtils.nextInDirection(row, col, this.direction)];
-                }
-            } else { //Continuing hit of known direction
-                this.targetQueue.unshift(GridUtils.nextInDirection(row, col, this.direction));
-            }
-
-            if (result.sunkShip) {
-                this.game.sound.play('sunk');
-                this.game.updateMessage(`Máy đã đánh chìm ${result.sunkShip.id} của bạn!`, 'ai-sunk');
-                this.resetTargeting();
-            }
-        } else {
-            this.game.updateMessage(`Máy bắn trượt tại (${row}, ${col}).`, 'ai-miss');
-            if (this.direction) {
-                this.direction = GridUtils.reverse(this.direction);
-                this.targetQueue = [GridUtils.nextInDirection(this.lastHit.row, this.lastHit.col, this.direction)];
-            } else if (this.lastHit) {
-                this.triedDirections.push({ row, col });
-                this.addAdjacentTargets(this.lastHit.row, this.lastHit.col);
-            }
-        }
-    }
-
-    addAdjacentTargets(row, col) { //Add the adjacent target into targetQueue
-        GridUtils.adjacentCells(row, col, this.gridSize).forEach(cell => {
-            if (!this.isAlreadyAttacked(cell.row, cell.col)) this.targetQueue.push(cell);
-        });
-    }
-
-    isAlreadyAttacked(row, col) {
-        const cell = this.grid.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
-        return cell.classList.contains('hit') || cell.classList.contains('miss');
-    }
-
-    resetTargeting() {
-        this.lastHit = null;
-        this.direction = null;
-        this.targetQueue = [];
-        this.triedDirections = [];
     }
 
     checkWin(ships) {

@@ -1,5 +1,3 @@
-import { Ship } from "/js/models/ship.js";
-
 export class Board {
     constructor(gridElement, isOpponent = false) {
         this.gridElement = gridElement;
