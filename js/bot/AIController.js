@@ -5,7 +5,7 @@ export class AIController {
     this.game = game;
     this.grid = game.playerGridElement;
     this.gridSize = game.gridSize;
-    this.mode = 'hunt'; 
+    this.mode = 'hunt';
     this.targetQueue = [];
     this.lastHit = null;
     this.direction = null;
@@ -22,39 +22,54 @@ export class AIController {
 
   chooseTarget() {
     if (this.mode === 'target' && this.targetQueue.length > 0) {
-      return this.targetQueue.pop();
+      return this.targetQueue.shift();
     }
 
     //If there's no targetted cell, randomly choose a cell
-    let attempts = 0;
-    while (attempts < this.gridSize * this.gridSize) {
-      const row = Math.floor(Math.random() * this.gridSize);
-      const col = Math.floor(Math.random() * this.gridSize);
-      if (!this.isAlreadyAttacked(row, col)) return { row, col };
-      attempts++;
+    const candidates = [];
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
+        if ((r + c) % 2 === 0 && !this.isAlreadyAttacked(r, c)) {
+          candidates.push({ row: r, col: c });
+        }
+      }
     }
 
-    return null;
+    if (candidates.length === 0) {
+      // fallback to any available cell
+      for (let r = 0; r < this.gridSize; r++) {
+        for (let c = 0; c < this.gridSize; c++) {
+          if (!this.isAlreadyAttacked(r, c)) {
+            candidates.push({ row: r, col: c });
+          }
+        }
+      }
+    }
+
+    const idx = Math.floor(Math.random() * candidates.length);
+    return candidates[idx];
   }
 
   handleResult(row, col, result) {
     if (result.hit) {
       this.mode = 'target';
-       this.game.sound.play('fire');
+      this.game.sound.play('fire');
       this.game.updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, 'ai-hit');
 
       if (!this.lastHit) { //First hit case
         this.lastHit = { row, col };
-        this.triedDirections = [];
+        // this.triedDirections = [];
         this.addAdjacentTargets(row, col);
       } else if (!this.direction) { //Second hit case
         //determine the direction of the boat
         this.direction = GridUtils.getDirection(this.lastHit, { row, col });
+        //this.targetQueue = [];
         if (this.direction) {
           this.targetQueue = [GridUtils.nextInDirection(row, col, this.direction)];
         }
+        //this.targetQueue = [GridUtils.nextInDirection(row, col, this.direction)];
       } else { //Continuing hit of known direction
-        this.targetQueue.unshift(GridUtils.nextInDirection(row, col, this.direction));
+        this.targetQueue.push(GridUtils.nextInDirection(row, col, this.direction));
       }
 
       if (result.sunkShip) {
@@ -69,9 +84,15 @@ export class AIController {
       if (this.direction) {
         // Switch direction and try from original hit
         this.direction = GridUtils.reverse(this.direction);
-        this.targetQueue = [GridUtils.nextInDirection(this.lastHit.row, this.lastHit.col, this.direction)];
+        if (this.lastHit && this.direction) {
+          const next = GridUtils.nextInDirection(this.lastHit.row, this.lastHit.col, this.direction);
+          if (next && !this.isAlreadyAttacked(next.row, next.col)) {
+            this.targetQueue = [next];
+          }
+        }
+        
       } else if (this.lastHit) {
-        this.triedDirections.push({ row, col });
+        // this.triedDirections.push({ row, col });
         this.addAdjacentTargets(this.lastHit.row, this.lastHit.col);
       }
     }
