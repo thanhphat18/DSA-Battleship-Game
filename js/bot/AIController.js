@@ -54,7 +54,7 @@ export class AIController {
     if (result.hit) {
       this.mode = 'target';
       this.game.sound.play('fire');
-      this.game.updateMessage(`Máy đã bắn trúng tàu của bạn tại (${row}, ${col})!`, 'ai-hit');
+      this.game.updateMessage(`AI hit your ship at (${row}, ${col})!`, 'ai-hit');
 
       if (!this.lastHit) { //First hit case
         this.lastHit = { row, col };
@@ -74,12 +74,12 @@ export class AIController {
 
       if (result.sunkShip) {
         this.game.sound.play('sunk');
-        this.game.updateMessage(`Máy đã đánh chìm ${result.sunkShip.id} của bạn!`, 'ai-sunk');
+        this.game.updateMessage(`AI sunk ${result.sunkShip.id} of yours!`, 'ai-sunk');
 
         this.resetTargeting();
       }
     } else {
-      this.game.updateMessage(`Máy bắn trượt tại (${row}, ${col}).`, 'ai-miss');
+      this.game.updateMessage(`AI misses at (${row}, ${col}).`, 'ai-miss');
 
       if (this.direction) {
         // Switch direction and try from original hit
