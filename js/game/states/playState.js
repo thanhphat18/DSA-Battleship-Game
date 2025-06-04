@@ -10,8 +10,8 @@ export class PlayState {
     enter() {
         this.game.gameStarted = true;
         this.game.playerTurn = true;
-        this.game.updateMessage('Trò chơi bắt đầu! Lượt của bạn.');
-        this.game.turnIndicator.textContent = 'Lượt của: Bạn';
+        this.game.updateMessage('Game start! Your turn.');
+        this.game.turnIndicator.textContent = 'Turn: Yours';
         this.game.disableShipPlacementUI();
         this.setupOpponentShips();
         this.game.startGameButton.disabled = true;
